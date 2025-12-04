@@ -1,50 +1,39 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Face Harmony Analyzer</title>
+    <title>Calculadora de Armonía Facial</title>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
-<header>
-    <h1>Face Harmony Analyzer</h1>
-</header>
+<div class="container">
 
-<div id="main">
-
-    <!-- COLUMNA IZQUIERDA -->
-    <div id="leftPanel">
-        <div id="uploadBox">
-            <p>Sube una foto frontal</p>
-            <input type="file" id="fileInput">
-        </div>
-
-        <div id="imageContainer">
+    <div class="image-panel">
+        <div class="image-box">
             <img id="uploadedImage">
             <canvas id="canvas"></canvas>
         </div>
+
+        <input type="file" id="imgUpload" accept="image/*">
     </div>
 
-    <!-- COLUMNA DERECHA -->
-    <div id="rightPanel">
+    <div class="instruction-panel">
+        <h2 id="stepTitle">Sube una foto</h2>
+        <p id="instructionText">
+            Sube una foto clara donde se vea toda tu cara.
+        </p>
 
-        <div id="stepCard">
-            <h2>Paso actual</h2>
-            <p id="instructions">Sube una foto para comenzar.</p>
-        </div>
-
-        <div id="buttons">
-            <button id="nextBtn" disabled>Siguiente ➜</button>
-            <button id="calculateBtn" disabled class="finalBtn">Calcular Resultado</button>
-        </div>
-
+        <button id="nextBtn" class="btn hidden">Siguiente</button>
+        <button id="calcBtn" class="btn hidden">Calcular resultado final</button>
     </div>
 
 </div>
 
-<div id="results"></div>
+<div id="resultsBox" class="hidden">
+    <h2>Resultados</h2>
+    <div id="results"></div>
+</div>
 
 <script src="script.js"></script>
 </body>
