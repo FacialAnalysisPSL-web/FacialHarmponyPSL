@@ -1,39 +1,53 @@
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const imgInput = document.getElementById("image-input");
-const instructions = document.getElementById("instructions");
-const calcButton = document.getElementById("calcButton");
+//---------------------------------------------------
+// 1. Ratios e ideales
+//---------------------------------------------------
 
-let img = new Image();
-let points = [];
-let step = 0;
+const ratios = [
+    { name: "Midface", ideal: 1.00, points: 2,
+      instructions: "Marca: (1) Philtrum — (2) Mentón" },
 
-const pointNames = [
-    "1. Pupila izquierda",
-    "2. Pupila derecha",
-    "3. Borde interno ojo izquierdo",
-    "4. Borde externo ojo izquierdo",
-    "5. Borde interno ojo derecho",
-    "6. Borde externo ojo derecho",
-    "7. Fosa nasal izquierda",
-    "8. Fosa nasal derecha",
-    "9. Base nasal",
-    "10. Entrecejo",
-    "11. Comisura izquierda",
-    "12. Comisura derecha",
-    "13. Pómulo izquierdo",
-    "14. Pómulo derecho",
-    "15. Mandíbula izquierda",
-    "16. Mandíbula derecha",
-    "17. Parte superior del labio superior",
-    "18. Parte inferior del labio inferior",
-    "19. Mentón (abajo)",
-    "20. Mentón izquierda",
-    "21. Mentón derecha",
-    "22. Hairline"
+    { name: "FWHR", ideal: 1.99, points: 4,
+      instructions: "Marca: (1) Pómulo izq — (2) Pómulo der — (3) Labio sup — (4) Entrecejo" },
+
+    { name: "Facial Height", ideal: 1.37, points: 2,
+      instructions: "Marca: (1) Hairline — (2) Mentón" },
+
+    { name: "Jaw Width", ideal: 1.45, points: 2,
+      instructions: "Marca: (1) Mandíbula izq — (2) Mandíbula der" },
+
+    { name: "Chin-Philtrum", ideal: 2.40, points: 2,
+      instructions: "Marca: (1) Philtrum — (2) Mentón" },
+
+    { name: "Nose Width", ideal: 1.32, points: 2,
+      instructions: "Marca: (1) Fosa izq — (2) Fosa der" },
+
+    { name: "Eye Ratio", ideal: 0.38, points: 2,
+      instructions: "Marca: (1) Ojo izq — (2) Ojo der" },
+
+    { name: "Lip Ratio", ideal: 1.68, points: 2,
+      instructions: "Marca: (1) Comisura izq — (2) Comisura der" },
+
+    { name: "Mandible Angle", ideal: 1.55, points: 2,
+      instructions: "Marca: (1) Ángulo mandibular izq — (2) Ángulo mandibular der" },
+
+    { name: "Cheekbone Ratio", ideal: 1.60, points: 2,
+      instructions: "Marca: (1) Pómulo izq — (2) Pómulo der" },
+
+    { name: "Golden Ratio", ideal: 1.62, points: 3,
+      instructions: "Marca: (1) Hairline — (2) Ceja — (3) Mentón" }
 ];
 
-imgInput.onchange = e => {
+
+//---------------------------------------------------
+// 2. Cargar imagen
+//---------------------------------------------------
+
+const img = document.getElementById("uploadedImage");
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const fileInput = document.getElementById("fileInput");
+
+fileInput.onchange = e => {
     const file = e.target.files[0];
     img.src = URL.createObjectURL(file);
 
@@ -41,154 +55,126 @@ imgInput.onchange = e => {
         canvas.width = img.width;
         canvas.height = img.height;
         ctx.drawImage(img, 0, 0);
-
-        instructions.innerHTML = "Haz clic para colocar: " + pointNames[0];
+        startProcess();
     };
 };
 
-canvas.addEventListener("click", e => {
-    if (step >= 22) return;
 
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+//---------------------------------------------------
+// 3. Proceso de selección de puntos
+//---------------------------------------------------
 
-    points.push({ x, y });
-    drawPoint(x, y);
+let current = 0;
+let clickedPoints = [];
+let allResults = [];
 
-    step++;
+function startProcess() {
+    document.getElementById("instructions").innerHTML =
+        ratios[current].instructions;
 
-    if (step < 22) {
-        instructions.innerHTML = "Coloca: " + pointNames[step];
-    } else {
-        instructions.innerHTML = "Todos los puntos listos.";
-        calcButton.style.display = "block";
-    }
-});
+    clickedPoints = [];
 
-function drawPoint(x, y) {
-    ctx.fillStyle = "red";
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
-    ctx.fill();
+    canvas.onclick = event => {
+        const r = canvas.getBoundingClientRect();
+        const x = event.clientX - r.left;
+        const y = event.clientY - r.top;
+
+        clickedPoints.push({ x, y });
+
+        ctx.fillStyle = "red";
+        ctx.beginPath();
+        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+        ctx.fill();
+
+        if (clickedPoints.length === ratios[current].points) {
+            document.getElementById("nextBtn").disabled = false;
+        }
+    };
 }
+
+
+//---------------------------------------------------
+// 4. Distancia
+//---------------------------------------------------
 
 function dist(a, b) {
-    return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+    return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-// FÓRMULAS IDEALES
-const IDEALS = {
-    midface: 1.0,
-    fwhr: 1.99,
-    faceHeight: 1.37,
-    es: 0.46,
-    jaw: 0.94,
-    noseLengthHeight: 1.45,
-    noseWidth: 0.25,
-    noseLip: 1.55,
-    noseChin: 1.0,
-    chinPhiltrum: 2.40,
-    eyeRatio: 1.0
-};
 
-// PESOS
-const WEIGHTS = {
-    midface: 0.12,
-    fwhr: 0.20,
-    faceHeight: 0.08,
-    es: 0.08,
-    jaw: 0.14,
-    noseLengthHeight: 0.10,
-    noseWidth: 0.05,
-    noseLip: 0.06,
-    noseChin: 0.06,
-    chinPhiltrum: 0.06,
-    eyeRatio: 0.05
-};
+//---------------------------------------------------
+// 5. Botón SIGUIENTE
+//---------------------------------------------------
 
-calcButton.onclick = () => {
-    const r = {};
+document.getElementById("nextBtn").onclick = () => {
 
-    const pupL = points[0];
-    const pupR = points[1];
-    const pupDist = dist(pupL, pupR);
+    let val;
 
-    const topLip = points[16];
-    const entrecejo = points[9];
-
-    const pomL = points[12];
-    const pomR = points[13];
-    const pomDist = dist(pomL, pomR);
-
-    const noseBase = points[8];
-    const fosaL = points[6];
-    const fosaR = points[7];
-
-    const chin = points[18];
-    const chinL = points[19];
-    const chinR = points[20];
-
-    const bottomLip = points[17];
-    const hair = points[21];
-
-    const eyeL = dist(points[3], points[2]);
-    const eyeR = dist(points[5], points[4]);
-
-    // 1 Midface
-    const midHeight = Math.abs(topLip.y - (pupL.y + pupR.y) / 2);
-    r.midface = midHeight / pupDist;
-
-    // 2 FWHR
-    const fwhrHeight = Math.abs(entrecejo.y - topLip.y);
-    r.fwhr = pomDist / fwhrHeight;
-
-    // 3 Face Height
-    r.faceHeight = dist(hair, chin) / pomDist;
-
-    // 4 ES
-    r.es = pupDist / pomDist;
-
-    // 5 Jaw
-    r.jaw = dist(points[14], points[15]) / pomDist;
-
-    // 6 Nose length–height
-    r.noseLengthHeight = dist(entrecejo, noseBase) / dist(fosaL, fosaR);
-
-    // 7 Nose width
-    r.noseWidth = dist(fosaL, fosaR) / pomDist;
-
-    // 8 Nose–Lip
-    r.noseLip = dist(points[10], points[11]) / dist(fosaL, fosaR);
-
-    // 9 Nose = Chin
-    r.noseChin = dist(fosaL, fosaR) / dist(chinL, chinR);
-
-    // 10 Chin–Philtrum
-    const mentonLen = dist(chin, bottomLip);
-    const filtrum = dist(topLip, noseBase);
-    r.chinPhiltrum = mentonLen / filtrum;
-
-    // 11 One eye
-    r.eyeRatio = (eyeL + eyeR) / (2 * pupDist);
-
-    let finalScore = 0;
-    let html = "<h2>Resultados</h2>";
-
-    for (const key in r) {
-        const val = r[key];
-        const ideal = IDEALS[key];
-
-        let error = Math.abs((val - ideal) / ideal);
-        if (error > 1) error = 1;
-
-        const score = 100 - error * 100;
-        finalScore += score * WEIGHTS[key];
-
-        html += `<p><b>${key}</b>: ${val.toFixed(3)} (ideal ${ideal}) → <span style='color:yellow;'>${score.toFixed(1)}%</span></p>`;
+    if (ratios[current].name === "FWHR") {
+        const w = dist(clickedPoints[0], clickedPoints[1]);
+        const h = dist(clickedPoints[2], clickedPoints[3]);
+        val = w / h;
+    } else {
+        val = dist(clickedPoints[0], clickedPoints[1]);
     }
 
-    html += `<h2>Puntaje Final: <span style='color:#0f0;'>${finalScore.toFixed(1)}%</span></h2>`;
+    allResults.push({
+        name: ratios[current].name,
+        ideal: ratios[current].ideal,
+        value: val
+    });
+
+    current++;
+
+    ctx.drawImage(img, 0, 0);
+
+    if (current < ratios.length) {
+        document.getElementById("instructions").innerHTML =
+            ratios[current].instructions;
+
+        clickedPoints = [];
+        document.getElementById("nextBtn").disabled = true;
+    }
+    else {
+        document.getElementById("instructions").innerHTML =
+            "Ya puedes calcular el resultado final.";
+        document.getElementById("nextBtn").disabled = true;
+        document.getElementById("calculateBtn").disabled = false;
+    }
+};
+
+
+//---------------------------------------------------
+// 6. Cálculo estricto
+//---------------------------------------------------
+
+document.getElementById("calculateBtn").onclick = () => {
+
+    const k = 3;
+    let product = 1;
+
+    let html = `
+        <div style="margin-top:25px;">
+        <h2>Resultados</h2>
+    `;
+
+    allResults.forEach(r => {
+        const error = Math.abs(r.value - r.ideal) / r.ideal;
+        const score = 100 * Math.exp(-k * error);
+
+        product *= score;
+
+        html += `<p><b>${r.name}</b>: ${score.toFixed(1)}%</p>`;
+    });
+
+    const finalScore = Math.pow(product, 1 / allResults.length);
+
+    html += `
+        <h1 style="color:#27b36a;">
+            Armonía Facial: ${finalScore.toFixed(1)}%
+        </h1>
+        </div>
+    `;
 
     document.getElementById("results").innerHTML = html;
 };
