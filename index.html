@@ -1,41 +1,40 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Analizador de Armonía Facial — Estricto</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Analizador de Armonía Facial</title>
+    <style>
+        body { font-family: Arial; background: #f6f6f6; padding: 20px; }
+        #canvasContainer {
+            width: 400px;
+            position: relative;
+        }
+        #photoCanvas {
+            width: 100%;
+            border: 2px solid #000;
+            cursor: crosshair;
+        }
+        #points {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
-  <header>
-    <h1>Analizador de Armonía Facial — Modo Estricto</h1>
-    <p class="hint">Coloca los <strong>22 puntos</strong> en el orden indicado. Los puntajes son intencionalmente estrictos.</p>
-  </header>
 
-  <main>
-    <section class="upload">
-      <input id="imageUpload" type="file" accept="image/*" />
-    </section>
+<h2>Sube tu foto</h2>
 
-    <section class="canvas-wrap">
-      <canvas id="photoCanvas"></canvas>
-    </section>
+<input id="fileInput" type="file" accept="image/*">
 
-    <section id="controls">
-      <div id="instructions">Sube una imagen para empezar.</div>
-      <button id="resetBtn" class="hidden">Reiniciar</button>
-      <button id="calculateBtn" class="hidden">CALCULAR</button>
-      <button id="downloadCsv" class="hidden">Descargar CSV</button>
-    </section>
+<div id="canvasContainer">
+    <canvas id="photoCanvas"></canvas>
+</div>
 
-    <section id="results"></section>
-    <section id="explain" class="explain"></section>
-  </main>
+<p id="points">Coloca los 22 puntos en orden.</p>
 
-  <footer>
-    <small>Nota: herramienta orientativa. Para evaluación profesional consulte un especialista.</small>
-  </footer>
+<button id="calculateBtn" class="hidden">CALCULAR</button>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
