@@ -1,32 +1,38 @@
-:root{
-  --bg:#fafafa;
-  --card:#fff;
-  --accent:#0b6ef6;
-  --muted:#666;
-  --glass: rgba(255,255,255,0.7);
+body {
+    font-family: Arial, sans-serif;
+    padding: 20px;
+    background: #f0f0f0;
 }
 
-*{box-sizing:border-box;font-family:system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;}
-html,body{height:100%;margin:0;background:var(--bg);color:#111;}
-header{padding:20px 24px;border-bottom:1px solid #eee;}
-h1{margin:0 0 6px;font-size:1.4rem;}
-main{padding:18px;max-width:1100px;margin:0 auto;}
-.controls{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap;}
-.controls input[type="file"]{padding:6px;}
-.controls button{padding:8px 12px;border:0;background:var(--accent);color:#fff;border-radius:6px;cursor:pointer;}
-.controls button[disabled]{opacity:.5;cursor:default;}
+h1 {
+    text-align: center;
+}
 
-.viewer{display:flex;gap:18px;align-items:flex-start;}
-.canvas-wrap{position:relative;width:520px;height:520px;background:#ddd;border-radius:8px;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-.canvas-wrap img{max-width:100%;max-height:100%;display:block;position:absolute;left:0;top:0;}
-canvas{position:absolute;left:0;top:0;width:100%;height:100%;}
+.canvas-container {
+    text-align: center;
+    margin-top: 20px;
+}
 
-.results{width:360px;padding:14px;background:var(--card);border-radius:8px;box-shadow:0 6px 18px rgba(20,20,30,0.06);}
-.results h2{margin-top:0;}
-.metric{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed #eee;}
-.metric:last-child{border-bottom:0;}
-.progress{height:10px;background:#eee;border-radius:999px;overflow:hidden;margin-top:6px;}
-.progress > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent), #3db);width:0%;}
+#photoCanvas {
+    border: 2px solid #333;
+    max-width: 90vw;
+}
 
-.notes{margin-top:18px;padding:12px;background:var(--glass);border-radius:8px;}
-footer{padding:10px 24px;color:var(--muted);font-size:13px;text-align:center;margin-top:24px;}
+#instructions {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+#results {
+    margin-top: 25px;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+}
+
+button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    font-size: 18px;
+}
