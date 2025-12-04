@@ -22,21 +22,32 @@ const steps = [
     "Marca el borde exterior de la cara (izquierda)"
 ];
 
+// ------------------------------------------
+//     🔥 FIX IMPORTANTE PARA LOS CLICS 🔥
+// ------------------------------------------
+function resizeCanvasToDisplaySize() {
+    const box = document.querySelector(".image-box");
+
+    // El canvas SIEMPRE debe coincidir 1:1 con lo que se ve
+    canvas.width = box.clientWidth;
+    canvas.height = box.clientHeight;
+}
+
+// ------------------------------------------
+
 file.addEventListener("change", e => {
     const reader = new FileReader();
-    reader.onload = () => {
-        img.src = reader.result;
-    };
+    reader.onload = () => img.src = reader.result;
     reader.readAsDataURL(e.target.files[0]);
 });
 
 img.onload = () => {
-    const box = document.querySelector(".image-box");
-    canvas.width = box.clientWidth;
-    canvas.height = box.clientHeight;
+    resizeCanvasToDisplaySize();  // 👈 ahora funciona siempre
 
     points = [];
     pointIndex = 0;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     nextBtn.classList.remove("hidden");
     calculateBtn.classList.add("hidden");
@@ -44,40 +55,47 @@ img.onload = () => {
     updateInstruction();
 };
 
+// ----------------------------
+//     CLICK PARA MARCAR PUNTO
+// ----------------------------
 canvas.addEventListener("click", e => {
+    resizeCanvasToDisplaySize();  // 👈 asegura coordenadas correctas SIEMPRE
+
     const rect = canvas.getBoundingClientRect();
+
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
-    points.push({x, y});
     drawPoint(x, y);
+    points.push({ x, y });
 
     pointIndex++;
 
     if (pointIndex < steps.length) {
         updateInstruction();
     } else {
+        instruction.textContent = "Todos los puntos listos ✔";
         nextBtn.classList.add("hidden");
         calculateBtn.classList.remove("hidden");
-        instruction.textContent = "Todos los puntos listos ✔";
     }
 });
 
-nextBtn.addEventListener("click", () => {
-    instruction.textContent = steps[pointIndex];
-});
+// ---------------------------------
+function drawPoint(x, y) {
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(x, y, 6, 0, Math.PI * 2);
+    ctx.fill();
+}
 
 function updateInstruction() {
     instruction.textContent = steps[pointIndex];
 }
+// ---------------------------------
 
-function drawPoint(x, y) {
-    ctx.fillStyle = "red";
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
-    ctx.fill();
-}
-
+// ---------------------------------
+//   SISTEMA DE CÁLCULO ESTRICTO
+// ---------------------------------
 calculateBtn.addEventListener("click", () => {
     const score = calculateStrictScore();
     resultBox.innerHTML = score;
@@ -100,24 +118,18 @@ function calculateStrictScore() {
     const rightFace = points[6];
     const leftFace = points[7];
 
-    // Proporción vertical ideal → 1 : 1 : 1
     const upper = dist(hair, brow);
     const middle = dist(brow, nose);
     const lower = dist(nose, chin);
 
     const ideal = (Math.abs(upper - middle) + Math.abs(middle - lower)) / ((upper + middle + lower) / 3);
 
-    // Simetría horizontal
     const eyeWidthDiff = Math.abs(dist(rightEye, leftEye) - dist(leftEye, rightEye));
-
-    // Ancho facial
     const width = dist(rightFace, leftFace);
     const height = dist(hair, chin);
 
-    const facialRatio = Math.abs((height / width) - 1.618); // razón áurea estricta
+    const facialRatio = Math.abs((height / width) - 1.618);
 
-    // Fórmula estricta:
-    // mientras mayor el error → más penalización
     let rawScore = 100
         - ideal * 20
         - facialRatio * 35
