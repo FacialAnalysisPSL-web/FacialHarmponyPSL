@@ -1,51 +1,32 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Análisis de Armonía Facial</title>
-  <link rel="stylesheet" href="styles.css" />
-  <!-- face-api.js desde CDN -->
-  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
-  <script defer src="script.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Analizador de Armonía Facial</title>
+    <link rel="stylesheet" href="style.css" />
 </head>
+
 <body>
-  <header>
-    <h1>Análisis de Armonía Facial</h1>
-    <p>Sube una foto frontal (buena iluminación). El proceso usa modelos locales (ver instrucciones) y calcula simetría y proporciones.</p>
-  </header>
+    <h1>Analizador de Armonía Facial</h1>
 
-  <main>
-    <section class="controls">
-      <input id="imageUpload" type="file" accept="image/*" />
-      <button id="analyzeBtn" disabled>Analizar</button>
-      <button id="downloadBtn" disabled>Descargar resultado</button>
-      <div id="status">Cargando modelos…</div>
-    </section>
+    <div class="upload-section">
+        <input type="file" id="imageUpload" accept="image/*" />
+    </div>
 
-    <section class="viewer">
-      <div class="canvas-wrap">
-        <canvas id="overlay"></canvas>
-        <img id="inputImage" alt="Imagen a analizar" crossorigin="anonymous" />
-      </div>
-      <aside class="results" id="results">
-        <h2>Resultados</h2>
-        <div id="metrics">Sin análisis todavía.</div>
-      </aside>
-    </section>
+    <div class="canvas-container">
+        <canvas id="photoCanvas"></canvas>
+    </div>
 
-    <section class="notes">
-      <h3>Notas</h3>
-      <ul>
-        <li>Mejor con foto frontal y sin obstrucciones.</li>
-        <li>Los puntajes son indicadores heurísticos, no diagnósticos.</li>
-        <li>Para producción: proteger el procesamiento de imágenes y avisar privacidad.</li>
-      </ul>
-    </section>
-  </main>
+    <div id="instructions"></div>
 
-  <footer>
-    <small>Diseñado para demostración. Modelos requeridos: face-landmark-68, ssd_mobilenetv1 (ver README).</small>
-  </footer>
+    <button id="calculateBtn" style="display:none;">Calcular Métricas</button>
+
+    <h2>Puntajes</h2>
+    <div id="results"></div>
+
+    <button id="downloadCsv" style="display:none;">Descargar CSV</button>
+
+    <script src="script.js"></script>
 </body>
 </html>
