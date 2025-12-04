@@ -1,65 +1,26 @@
-:root{
-  --bg:#f4f6f8;
-  --card:#fff;
-  --accent:#2b8aef;
-  --muted:#666;
+body {
+    background: #111;
+    color: #fff;
+    font-family: Arial;
+    text-align: center;
 }
 
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:Inter, system-ui, Arial, sans-serif;
-  background:var(--bg);
-  color:#222;
-}
-header{
-  padding:18px 24px;
-  background:linear-gradient(90deg,#ffffff,#f7fbff);
-  border-bottom:1px solid #e6eefc;
-}
-header h1{margin:0;font-size:20px}
-main{
-  display:flex;
-  gap:18px;
-  padding:18px;
-}
-.left{flex:1}
-.right{width:380px}
-
-.uploader{
-  display:flex;gap:8px;align-items:center;margin-bottom:12px;
-}
-.btn{
-  background:var(--accent);
-  color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;
-  font-weight:600;
-}
-.btn.secondary{background:#6c757d}
-.btn.primary{background:#198754}
-.canvas-wrap{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
-canvas{
-  display:block;
-  max-width:100%;
-  border-radius:8px;
-  border:1px solid #ccc;
-  background:#222;
-  cursor: crosshair;
+#canvas {
+    border: 2px solid #fff;
+    margin-top: 20px;
+    max-width: 90%;
 }
 
-/* Sidebar */
-.stepbox{
-  background:var(--card);
-  padding:14px;border-radius:10px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,0.04)
+#instructions {
+    margin-top: 20px;
+    font-size: 20px;
+    font-weight: bold;
 }
-.stepbox h2{margin:0 0 6px 0;font-size:16px}
-.instructions{color:var(--muted);margin-bottom:8px}
-#neededList{padding-left:18px;margin-top:0;color:#222}
-.status{color:#c33}
 
-.results{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
-.results h3{margin-top:0}
-.metric-row{display:flex;gap:8px;border-bottom:1px dashed #eee;padding:8px 0;align-items:center}
-.metric-row .name{flex:1;font-weight:700}
-.small{font-size:13px;color:var(--muted)}
-#finalScore{margin-top:12px;font-size:20px;font-weight:700}
-.actions{margin-top:8px}
+button {
+    padding: 12px 22px;
+    font-size: 16px;
+    margin-top: 20px;
+    cursor: pointer;
+    border-radius: 8px;
+}
