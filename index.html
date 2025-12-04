@@ -2,25 +2,32 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Analizador de Armonía Facial</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>Análisis de Armonía Facial</h2>
+    <h1>Analizador de Armonía Facial</h1>
 
-<input id="fileInput" type="file" accept="image/*">
+    <input id="fileInput" type="file" accept="image/*">
 
-<div id="canvasContainer">
+    <p>Toca sobre 6 puntos importantes del rostro:</p>
+    <ol>
+        <li>Centro de pupila izquierda</li>
+        <li>Centro de pupila derecha</li>
+        <li>Base de la nariz</li>
+        <li>Mentón</li>
+        <li>Pómulo izquierdo</li>
+        <li>Pómulo derecho</li>
+    </ol>
+
     <canvas id="photoCanvas"></canvas>
-</div>
 
-<p id="instructions">Coloca los 22 puntos en orden.</p>
+    <button id="calculateBtn">Calcular Armonía</button>
 
-<button id="calculateBtn" class="hidden">CALCULAR</button>
+    <div id="result"></div>
 
-<div id="results"></div>
-
-<script src="script.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
