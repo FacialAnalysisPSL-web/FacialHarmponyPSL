@@ -1,33 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analizador de Armonía Facial</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analizador de Armonía Facial — Minimal</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-
+  <header>
     <h1>Analizador de Armonía Facial</h1>
+    <p class="muted">Sube una foto, coloca 22 puntos en orden y pulsa CALCULAR.</p>
+  </header>
 
-    <input id="fileInput" type="file" accept="image/*">
+  <main>
+    <section class="left">
+      <input id="fileInput" type="file" accept="image/*">
+      <div id="canvasWrap">
+        <canvas id="photoCanvas"></canvas>
+      </div>
 
-    <p>Toca sobre 6 puntos importantes del rostro:</p>
-    <ol>
-        <li>Centro de pupila izquierda</li>
-        <li>Centro de pupila derecha</li>
-        <li>Base de la nariz</li>
-        <li>Mentón</li>
-        <li>Pómulo izquierdo</li>
-        <li>Pómulo derecho</li>
-    </ol>
+      <div class="controls">
+        <div id="pointInfo">Punto 1 / 22 — Esperando imagen</div>
+        <button id="resetBtn" class="btn">Reiniciar</button>
+        <button id="calculateBtn" class="btn hidden">CALCULAR</button>
+        <button id="downloadCsv" class="btn hidden">Descargar CSV</button>
+      </div>
+    </section>
 
-    <canvas id="photoCanvas"></canvas>
+    <aside class="right">
+      <h3>Guía de puntos (22)</h3>
+      <ol id="pointsList" class="points-list"></ol>
 
-    <button id="calculateBtn">Calcular Armonía</button>
+      <div id="results" class="results"></div>
+    </aside>
+  </main>
 
-    <div id="result"></div>
+  <footer class="muted">Modo: Minimalista · 22 puntos · 11 métricas</footer>
 
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
