@@ -3,27 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Analizador de Armonía Facial</title>
-    <style>
-        body { font-family: Arial; background: #f6f6f6; padding: 20px; }
-        #canvasContainer {
-            width: 400px;
-            position: relative;
-        }
-        #photoCanvas {
-            width: 100%;
-            border: 2px solid #000;
-            cursor: crosshair;
-        }
-        #points {
-            margin-top: 10px;
-            font-size: 14px;
-        }
-        .hidden { display: none; }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h2>Sube tu foto</h2>
+<h2>Análisis de Armonía Facial</h2>
 
 <input id="fileInput" type="file" accept="image/*">
 
@@ -31,9 +15,11 @@
     <canvas id="photoCanvas"></canvas>
 </div>
 
-<p id="points">Coloca los 22 puntos en orden.</p>
+<p id="instructions">Coloca los 22 puntos en orden.</p>
 
 <button id="calculateBtn" class="hidden">CALCULAR</button>
+
+<div id="results"></div>
 
 <script src="script.js"></script>
 </body>
