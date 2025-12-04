@@ -38,31 +38,38 @@ const weights = {
 };
 
 // ===============================
-// PUNTAJE — OPCIÓN B (más estricto fuerte)
+// PUNTAJE — OPCIÓN B+ (más estricto)
 // ===============================
 function strictScore(deviation) {
 
     const d = deviation * 100;
 
+    // 0–2% → 85–83
     if (d <= 2)
-        return 90 - ((d / 2) * (90 - 88)); // 0→90, 2→88
+        return 85 - (d * 1.0);
 
+    // 5% → 70
     if (d <= 5)
-        return 88 - ((d - 2) * ((88 - 80) / 3)); // 2→88, 5→80
+        return 83 - ((d - 2) * ((83 - 70) / 3));
 
+    // 10% → 55
     if (d <= 10)
-        return 80 - ((d - 5) * ((80 - 70) / 5)); // 5→80, 10→70
+        return 70 - ((d - 5) * ((70 - 55) / 5));
 
+    // 15% → 45
     if (d <= 15)
-        return 70 - ((d - 10) * ((70 - 60) / 5)); // 10→70, 15→60
+        return 55 - ((d - 10) * ((55 - 45) / 5));
 
+    // 20% → 35
     if (d <= 20)
-        return 60 - ((d - 15) * ((60 - 50) / 5)); // 15→60, 20→50
+        return 45 - ((d - 15) * ((45 - 35) / 5));
 
+    // 30% → 20
     if (d <= 30)
-        return 50 - ((d - 20) * ((50 - 40) / 10)); // 20→50, 30→40
+        return 35 - ((d - 20) * ((35 - 20) / 10));
 
-    return Math.max(0, 40 - (d - 30) * 2.0); // castigo fuerte
+    // Más de 30% → castigo fuerte
+    return Math.max(0, 20 - (d - 30) * 2.5);
 }
 
 // ===============================
@@ -115,7 +122,7 @@ function drawPoint(x, y, id) {
 function updateInstructions() {
     const i = clickedPoints.length;
     document.getElementById("instructions").innerHTML =
-        i < 22 ? `Punto ${i + 1}: ${pointNames[i]}` : "Puntos completos.";
+        i < 22 ? `Punto ${i + 1}: ${pointNames[i]}` : "Todos los puntos están listos.";
 }
 
 // ===============================
