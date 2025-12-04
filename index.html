@@ -2,37 +2,36 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Calculadora de Armonía Facial</title>
+    <title>Analizador Facial • Estricto</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 <div class="container">
 
-    <div class="image-panel">
+    <!-- Lado izquierdo: Imagen -->
+    <div class="left-panel">
+        <h2>Sube tu foto</h2>
+        <input type="file" id="file" accept="image/*">
+
         <div class="image-box">
-            <img id="uploadedImage">
+            <img id="photo">
             <canvas id="canvas"></canvas>
         </div>
-
-        <input type="file" id="imgUpload" accept="image/*">
     </div>
 
-    <div class="instruction-panel">
-        <h2 id="stepTitle">Sube una foto</h2>
-        <p id="instructionText">
-            Sube una foto clara donde se vea toda tu cara.
-        </p>
+    <!-- Lado derecho: Instrucciones + control -->
+    <div class="right-panel">
+        <h2>Puntos a marcar</h2>
+        <p id="instruction">Cargando…</p>
 
-        <button id="nextBtn" class="btn hidden">Siguiente</button>
-        <button id="calcBtn" class="btn hidden">Calcular resultado final</button>
+        <button id="next" class="hidden">Siguiente punto</button>
+        <button id="calculate" class="hidden final-btn">Calcular Resultado Final</button>
+
+        <h2>Resultado</h2>
+        <div id="result" class="result-box"></div>
     </div>
 
-</div>
-
-<div id="resultsBox" class="hidden">
-    <h2>Resultados</h2>
-    <div id="results"></div>
 </div>
 
 <script src="script.js"></script>
