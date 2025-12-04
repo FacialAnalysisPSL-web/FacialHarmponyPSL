@@ -8,7 +8,6 @@ const imageUpload = document.getElementById("imageUpload");
 let img = new Image();
 let clickedPoints = [];
 
-// Lista de 22 puntos en orden
 const pointNames = [
     "Pupila izquierda","Pupila derecha",
     "Borde interno ojo izq","Borde externo ojo izq",
@@ -23,7 +22,7 @@ const pointNames = [
     "Lado der mentón","Hairline"
 ];
 
-// PESOS
+// PESOS (los más importantes pesan más)
 const weights = {
     midface: 0.18,
     fwhr: 0.12,
@@ -39,35 +38,35 @@ const weights = {
 };
 
 // ===============================
-// FUNCIÓN DE SCORE EXACTO
+// PUNTAJE — OPCIÓN B (más estricto fuerte)
 // ===============================
 function strictScore(deviation) {
 
-    const d = deviation * 100; // Convertir a porcentaje
+    const d = deviation * 100;
 
     if (d <= 2)
-        return 100 - (d * 2); // 0%→100, 2%→96
+        return 90 - ((d / 2) * (90 - 88)); // 0→90, 2→88
 
     if (d <= 5)
-        return 96 - ((d - 2) * ((96 - 90) / (5 - 2))); // 2→96 a 5→90
+        return 88 - ((d - 2) * ((88 - 80) / 3)); // 2→88, 5→80
 
     if (d <= 10)
-        return 90 - ((d - 5) * ((90 - 85) / (10 - 5))); // 5→90 a 10→85
+        return 80 - ((d - 5) * ((80 - 70) / 5)); // 5→80, 10→70
 
     if (d <= 15)
-        return 85 - ((d - 10) * ((85 - 81) / (15 - 10))); // 10→85 a 15→81
+        return 70 - ((d - 10) * ((70 - 60) / 5)); // 10→70, 15→60
 
     if (d <= 20)
-        return 81 - ((d - 15) * ((81 - 75) / (20 - 15))); // 15→81 a 20→75
+        return 60 - ((d - 15) * ((60 - 50) / 5)); // 15→60, 20→50
 
     if (d <= 30)
-        return 75 - ((d - 20) * ((75 - 65) / (30 - 20))); // 20→75 a 30→65
+        return 50 - ((d - 20) * ((50 - 40) / 10)); // 20→50, 30→40
 
-    return Math.max(0, 65 - (d - 30) * 1.5); // castigo extra
+    return Math.max(0, 40 - (d - 30) * 2.0); // castigo fuerte
 }
 
 // ===============================
-// CARGAR Y DIBUJAR IMAGEN
+// CARGAR IMAGEN
 // ===============================
 imageUpload.addEventListener("change", e => {
     const file = e.target.files[0];
@@ -84,7 +83,7 @@ imageUpload.addEventListener("change", e => {
 });
 
 // ===============================
-// REGISTRO DE PUNTOS
+// CLICK PARA MARCAR PUNTOS
 // ===============================
 canvas.addEventListener("click", e => {
     if (clickedPoints.length >= 22) return;
@@ -94,7 +93,6 @@ canvas.addEventListener("click", e => {
     const y = e.clientY - rect.top;
 
     clickedPoints.push({ x, y });
-
     drawPoint(x, y, clickedPoints.length);
     updateInstructions();
 
@@ -103,7 +101,7 @@ canvas.addEventListener("click", e => {
     }
 });
 
-function drawPoint(x, y, number) {
+function drawPoint(x, y, id) {
     ctx.fillStyle = "red";
     ctx.beginPath();
     ctx.arc(x, y, 5, 0, Math.PI * 2);
@@ -111,72 +109,55 @@ function drawPoint(x, y, number) {
 
     ctx.fillStyle = "yellow";
     ctx.font = "16px Arial";
-    ctx.fillText(number, x + 8, y - 8);
+    ctx.fillText(id, x + 8, y - 8);
 }
 
 function updateInstructions() {
     const i = clickedPoints.length;
-    document.getElementById("instructions").innerText =
-        i < 22 ? `Punto ${i + 1}: ${pointNames[i]}` : "Todos los puntos colocados.";
+    document.getElementById("instructions").innerHTML =
+        i < 22 ? `Punto ${i + 1}: ${pointNames[i]}` : "Puntos completos.";
 }
 
 // ===============================
-// FUNCIÓN DISTANCIA
+// UTILIDAD DISTANCIA
 // ===============================
 function dist(a, b) {
     return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
 // ===============================
-// CÁLCULOS Y MÉTRICAS
+// CÁLCULOS
 // ===============================
 document.getElementById("calculateBtn").addEventListener("click", () => {
-    const p = clickedPoints;
 
+    const p = clickedPoints;
     const metrics = {};
 
-    // 1) Midface ratio
     const pupilLine = dist(p[0], p[1]);
     const midfaceHeight = Math.abs(p[16].y - ((p[0].y + p[1].y) / 2));
     metrics.midface = midfaceHeight / pupilLine;
 
-    // 2) FWHR
     metrics.fwhr = dist(p[12], p[13]) / dist(p[9], p[16]);
-
-    // 3) Face height
     metrics.face_height = dist(p[21], p[18]) / dist(p[12], p[13]);
-
-    // 4) ES ratio
     metrics.es_ratio = pupilLine / dist(p[12], p[13]);
-
-    // 5) Jaw width
     metrics.jaw_width = dist(p[14], p[15]) / dist(p[12], p[13]);
 
-    // 6) Nose ratio
     const nose_length = dist(p[9], p[8]);
     const nose_width = dist(p[6], p[7]);
     metrics.nose_ratio = nose_length / nose_width;
 
-    // 7) Nose width
     metrics.nose_width = nose_width / dist(p[12], p[13]);
-
-    // 8) Nose–lips
     metrics.nose_lips = dist(p[10], p[11]) / nose_width;
-
-    // 9) Nose = chin width
     metrics.nose_chin = nose_width / dist(p[19], p[20]);
 
-    // 10) Chin-philtrum
     const philtrum = dist(p[16], p[8]);
     const chin_len = dist(p[18], p[17]);
     metrics.chin_philtrum = chin_len / philtrum;
 
-    // 11) One-eye distance
     const leftEye = dist(p[3], p[2]);
     const rightEye = dist(p[5], p[4]);
     metrics.one_eye = (leftEye + rightEye) / (2 * pupilLine);
 
-    // Ideales
     const ideals = {
         midface: 1.0,
         fwhr: 1.99,
@@ -191,44 +172,35 @@ document.getElementById("calculateBtn").addEventListener("click", () => {
         one_eye: 1.0
     };
 
-    // ===============================
-    // PUNTAJES EXACTOS
-    // ===============================
     const scores = {};
     let finalScore = 0;
 
-    for (let key in metrics) {
-        const deviation = Math.abs(metrics[key] - ideals[key]) / ideals[key];
+    for (let k in metrics) {
+        const deviation = Math.abs(metrics[k] - ideals[k]) / ideals[k];
         const score = strictScore(deviation);
 
-        scores[key] = score;
-        finalScore += score * weights[key];
+        scores[k] = score;
+        finalScore += score * weights[k];
     }
 
-    // ===============================
-    // MOSTRAR RESULTADOS
-    // ===============================
-    let html = `<h3>Puntaje Final: ${finalScore.toFixed(1)}%</h3>`;
+    let html = `<h2>Puntaje Final: ${finalScore.toFixed(1)}%</h2><hr>`;
 
-    for (let key in metrics) {
+    for (let k in metrics) {
         html += `
-        <p><b>${key}</b><br>
-        Observado: ${metrics[key].toFixed(3)}<br>
-        Ideal: ${ideals[key]}<br>
-        Puntaje: ${scores[key].toFixed(1)}%</p>
+        <p><b>${k}</b><br>
+        Observado: ${metrics[k].toFixed(3)}<br>
+        Ideal: ${ideals[k]}<br>
+        Puntaje: ${scores[k].toFixed(1)}%</p>
         <hr>`;
     }
 
     document.getElementById("results").innerHTML = html;
     document.getElementById("downloadCsv").style.display = "block";
 
-    // ===============================
-    // CSV
-    // ===============================
     document.getElementById("downloadCsv").onclick = () => {
         let csv = "Métrica,Observado,Ideal,Puntaje\n";
-        for (let key in metrics) {
-            csv += `${key},${metrics[key]},${ideals[key]},${scores[key]}\n`;
+        for (let k in metrics) {
+            csv += `${k},${metrics[k]},${ideals[k]},${scores[k]}\n`;
         }
 
         const blob = new Blob([csv], { type: "text/csv" });
