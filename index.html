@@ -1,32 +1,41 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Analizador de Armonía Facial</title>
-    <link rel="stylesheet" href="style.css" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analizador de Armonía Facial — Estricto</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
-    <h1>Analizador de Armonía Facial</h1>
+  <header>
+    <h1>Analizador de Armonía Facial — Modo Estricto</h1>
+    <p class="hint">Coloca los <strong>22 puntos</strong> en el orden indicado. Los puntajes son intencionalmente estrictos.</p>
+  </header>
 
-    <div class="upload-section">
-        <input type="file" id="imageUpload" accept="image/*" />
-    </div>
+  <main>
+    <section class="upload">
+      <input id="imageUpload" type="file" accept="image/*" />
+    </section>
 
-    <div class="canvas-container">
-        <canvas id="photoCanvas"></canvas>
-    </div>
+    <section class="canvas-wrap">
+      <canvas id="photoCanvas"></canvas>
+    </section>
 
-    <div id="instructions"></div>
+    <section id="controls">
+      <div id="instructions">Sube una imagen para empezar.</div>
+      <button id="resetBtn" class="hidden">Reiniciar</button>
+      <button id="calculateBtn" class="hidden">CALCULAR</button>
+      <button id="downloadCsv" class="hidden">Descargar CSV</button>
+    </section>
 
-    <button id="calculateBtn" style="display:none;">Calcular Métricas</button>
+    <section id="results"></section>
+    <section id="explain" class="explain"></section>
+  </main>
 
-    <h2>Puntajes</h2>
-    <div id="results"></div>
+  <footer>
+    <small>Nota: herramienta orientativa. Para evaluación profesional consulte un especialista.</small>
+  </footer>
 
-    <button id="downloadCsv" style="display:none;">Descargar CSV</button>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
