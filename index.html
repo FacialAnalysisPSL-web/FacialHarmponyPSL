@@ -1,39 +1,51 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Analizador Facial • Estricto</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Análisis de Armonía Facial</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- face-api.js desde CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+  <script defer src="script.js"></script>
 </head>
 <body>
+  <header>
+    <h1>Análisis de Armonía Facial</h1>
+    <p>Sube una foto frontal (buena iluminación). El proceso usa modelos locales (ver instrucciones) y calcula simetría y proporciones.</p>
+  </header>
 
-<div class="container">
+  <main>
+    <section class="controls">
+      <input id="imageUpload" type="file" accept="image/*" />
+      <button id="analyzeBtn" disabled>Analizar</button>
+      <button id="downloadBtn" disabled>Descargar resultado</button>
+      <div id="status">Cargando modelos…</div>
+    </section>
 
-    <!-- Lado izquierdo: Imagen -->
-    <div class="left-panel">
-        <h2>Sube tu foto</h2>
-        <input type="file" id="file" accept="image/*">
+    <section class="viewer">
+      <div class="canvas-wrap">
+        <canvas id="overlay"></canvas>
+        <img id="inputImage" alt="Imagen a analizar" crossorigin="anonymous" />
+      </div>
+      <aside class="results" id="results">
+        <h2>Resultados</h2>
+        <div id="metrics">Sin análisis todavía.</div>
+      </aside>
+    </section>
 
-        <div class="image-box">
-            <img id="photo">
-            <canvas id="canvas"></canvas>
-        </div>
-    </div>
+    <section class="notes">
+      <h3>Notas</h3>
+      <ul>
+        <li>Mejor con foto frontal y sin obstrucciones.</li>
+        <li>Los puntajes son indicadores heurísticos, no diagnósticos.</li>
+        <li>Para producción: proteger el procesamiento de imágenes y avisar privacidad.</li>
+      </ul>
+    </section>
+  </main>
 
-    <!-- Lado derecho: Instrucciones + control -->
-    <div class="right-panel">
-        <h2>Puntos a marcar</h2>
-        <p id="instruction">Cargando…</p>
-
-        <button id="next" class="hidden">Siguiente punto</button>
-        <button id="calculate" class="hidden final-btn">Calcular Resultado Final</button>
-
-        <h2>Resultado</h2>
-        <div id="result" class="result-box"></div>
-    </div>
-
-</div>
-
-<script src="script.js"></script>
+  <footer>
+    <small>Diseñado para demostración. Modelos requeridos: face-landmark-68, ssd_mobilenetv1 (ver README).</small>
+  </footer>
 </body>
 </html>
