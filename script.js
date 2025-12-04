@@ -1,221 +1,123 @@
-// ===============================
-// VARIABLES GLOBALES
-// ===============================
-const canvas = document.getElementById("photoCanvas");
-const ctx = canvas.getContext("2d");
-const imageUpload = document.getElementById("imageUpload");
-
-let img = new Image();
-let clickedPoints = [];
-
-const pointNames = [
-    "Pupila izquierda","Pupila derecha",
-    "Borde interno ojo izq","Borde externo ojo izq",
-    "Borde interno ojo der","Borde externo ojo der",
-    "Fosa nasal izq","Fosa nasal der",
-    "Base de la nariz","Entrecejo",
-    "Comisura izq","Comisura der",
-    "Pómulo izq","Pómulo der",
-    "Mandíbula izq","Mandíbula der",
-    "Sup labio sup","Inf labio inf",
-    "Mentón","Lado izq mentón",
-    "Lado der mentón","Hairline"
-];
-
-// PESOS (los más importantes pesan más)
-const weights = {
-    midface: 0.18,
-    fwhr: 0.12,
-    face_height: 0.12,
-    es_ratio: 0.12,
-    jaw_width: 0.12,
-    nose_ratio: 0.12,
-    nose_width: 0.08,
-    nose_lips: 0.08,
-    nose_chin: 0.06,
-    chin_philtrum: 0.06,
-    one_eye: 0.05
-};
-
-// ===============================
-// PUNTAJE — OPCIÓN B+ (más estricto)
-// ===============================
-function strictScore(deviation) {
-
-    const d = deviation * 100;
-
-    // 0–2% → 85–83
-    if (d <= 2)
-        return 85 - (d * 1.0);
-
-    // 5% → 70
-    if (d <= 5)
-        return 83 - ((d - 2) * ((83 - 70) / 3));
-
-    // 10% → 55
-    if (d <= 10)
-        return 70 - ((d - 5) * ((70 - 55) / 5));
-
-    // 15% → 45
-    if (d <= 15)
-        return 55 - ((d - 10) * ((55 - 45) / 5));
-
-    // 20% → 35
-    if (d <= 20)
-        return 45 - ((d - 15) * ((45 - 35) / 5));
-
-    // 30% → 20
-    if (d <= 30)
-        return 35 - ((d - 20) * ((35 - 20) / 10));
-
-    // Más de 30% → castigo fuerte
-    return Math.max(0, 20 - (d - 30) * 2.5);
-}
-
-// ===============================
-// CARGAR IMAGEN
-// ===============================
-imageUpload.addEventListener("change", e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    img.src = URL.createObjectURL(file);
-    img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        clickedPoints = [];
-        updateInstructions();
-    };
-});
-
-// ===============================
-// CLICK PARA MARCAR PUNTOS
-// ===============================
-canvas.addEventListener("click", e => {
-    if (clickedPoints.length >= 22) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    clickedPoints.push({ x, y });
-    drawPoint(x, y, clickedPoints.length);
-    updateInstructions();
-
-    if (clickedPoints.length === 22) {
-        document.getElementById("calculateBtn").style.display = "block";
-    }
-});
-
-function drawPoint(x, y, id) {
-    ctx.fillStyle = "red";
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "yellow";
-    ctx.font = "16px Arial";
-    ctx.fillText(id, x + 8, y - 8);
-}
-
-function updateInstructions() {
-    const i = clickedPoints.length;
-    document.getElementById("instructions").innerHTML =
-        i < 22 ? `Punto ${i + 1}: ${pointNames[i]}` : "Todos los puntos están listos.";
-}
-
-// ===============================
-// UTILIDAD DISTANCIA
-// ===============================
+// ------------------------------
+// Utilidades
+// ------------------------------
 function dist(a, b) {
     return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-// ===============================
-// CÁLCULOS
-// ===============================
-document.getElementById("calculateBtn").addEventListener("click", () => {
+// ------------------------------
+// Escala EXACTA solicitada
+// ------------------------------
+//
+// 0–2%  → 94
+// 3%    → 86
+// 5%    → 80
+// 10%   → 70
+// 15%   → 67
+// 20%   → 60
+// 30%   → 50
+//
+// Se usa interpolación lineal exacta
+//
+function scoreFromDeviation(dev) {
+    if (dev <= 0.02) return 94;
+    if (dev <= 0.03) return lerp(94, 86, (dev - 0.02) / 0.01);
+    if (dev <= 0.05) return lerp(86, 80, (dev - 0.03) / 0.02);
+    if (dev <= 0.10) return lerp(80, 70, (dev - 0.05) / 0.05);
+    if (dev <= 0.15) return lerp(70, 67, (dev - 0.10) / 0.05);
+    if (dev <= 0.20) return lerp(67, 60, (dev - 0.15) / 0.05);
+    if (dev <= 0.30) return lerp(60, 50, (dev - 0.20) / 0.10);
 
-    const p = clickedPoints;
-    const metrics = {};
+    return 40; // fuera de escala
+}
 
-    const pupilLine = dist(p[0], p[1]);
-    const midfaceHeight = Math.abs(p[16].y - ((p[0].y + p[1].y) / 2));
-    metrics.midface = midfaceHeight / pupilLine;
+function lerp(a, b, t) {
+    return a + (b - a) * t;
+}
 
-    metrics.fwhr = dist(p[12], p[13]) / dist(p[9], p[16]);
-    metrics.face_height = dist(p[21], p[18]) / dist(p[12], p[13]);
-    metrics.es_ratio = pupilLine / dist(p[12], p[13]);
-    metrics.jaw_width = dist(p[14], p[15]) / dist(p[12], p[13]);
+// ------------------------------
+// Cálculo de métricas
+// ------------------------------
+function calculateMetrics(points) {
 
-    const nose_length = dist(p[9], p[8]);
-    const nose_width = dist(p[6], p[7]);
-    metrics.nose_ratio = nose_length / nose_width;
+    const p = points;
+    const metrics = [];
 
-    metrics.nose_width = nose_width / dist(p[12], p[13]);
-    metrics.nose_lips = dist(p[10], p[11]) / nose_width;
-    metrics.nose_chin = nose_width / dist(p[19], p[20]);
+    // 1. Midface Ratio
+    const pupMidY = (p[0].y + p[1].y) / 2;
+    const midfaceHeight = Math.abs(p[16].y - pupMidY);
+    const eyeDist = dist(p[0], p[1]);
+    metrics.push(makeMetric("Midface Ratio", midfaceHeight / eyeDist, 1.0));
 
-    const philtrum = dist(p[16], p[8]);
-    const chin_len = dist(p[18], p[17]);
-    metrics.chin_philtrum = chin_len / philtrum;
+    // 2. FWHR
+    const widthFW = dist(p[12], p[13]);
+    const heightFW = Math.abs(p[3].y - p[16].y);
+    metrics.push(makeMetric("FWHR", widthFW / heightFW, 1.99));
 
-    const leftEye = dist(p[3], p[2]);
-    const rightEye = dist(p[5], p[4]);
-    metrics.one_eye = (leftEye + rightEye) / (2 * pupilLine);
+    // 3. Face Height
+    const faceHeight = Math.abs(p[21].y - p[18].y);
+    metrics.push(makeMetric("Face Height", faceHeight / widthFW, 1.37));
 
-    const ideals = {
-        midface: 1.0,
-        fwhr: 1.99,
-        face_height: 1.37,
-        es_ratio: 0.46,
-        jaw_width: 0.94,
-        nose_ratio: 1.45,
-        nose_width: 0.25,
-        nose_lips: 1.55,
-        nose_chin: 1.00,
-        chin_philtrum: 2.40,
-        one_eye: 1.0
+    // 4. ES Ratio
+    metrics.push(makeMetric("E–S Ratio", eyeDist / widthFW, 0.46));
+
+    // 5. Jaw width
+    const jawW = dist(p[14], p[15]);
+    metrics.push(makeMetric("Jaw Width", jawW / widthFW, 0.94));
+
+    // 6. Nose length / width
+    const noseLen = dist(p[3], p[2]);
+    const noseWidth = dist(p[6], p[7]);
+    metrics.push(makeMetric("Nose Length / Width", noseLen / noseWidth, 1.45));
+
+    // 7. Nose width normalizada
+    metrics.push(makeMetric("Nose Width", noseWidth / widthFW, 0.25));
+
+    // 8. Lips / Nose width
+    const lipWidth = dist(p[10], p[11]);
+    metrics.push(makeMetric("Lips / Nose Width", lipWidth / noseWidth, 1.55));
+
+    // 9. Nose / Chin width
+    const chinW = dist(p[19], p[20]);
+    metrics.push(makeMetric("Nose / Chin Width", noseWidth / chinW, 1.00));
+
+    // 10. Chin / Philtrum
+    const chinLen = dist(p[18], p[17]);
+    const philtrum = dist(p[16], p[2]);
+    metrics.push(makeMetric("Chin / Philtrum", chinLen / philtrum, 2.40));
+
+    // 11. One-Eye Ratio (izq / centro / der)
+    const eyeLeft = dist(p[4], p[3]);
+    const eyeRight = dist(p[5], p[6]);
+    const idealEye = (eyeLeft + eyeRight + eyeDist) / 3;
+
+    const devEye = (
+        Math.abs(eyeLeft - idealEye) / idealEye +
+        Math.abs(eyeRight - idealEye) / idealEye +
+        Math.abs(eyeDist - idealEye) / idealEye
+    ) / 3;
+
+    metrics.push({
+        name: "One-Eye Ratio",
+        value: `${eyeLeft.toFixed(1)} / ${eyeDist.toFixed(1)} / ${eyeRight.toFixed(1)}`,
+        ideal: "1 : 1 : 1",
+        deviation: devEye,
+        score: scoreFromDeviation(devEye)
+    });
+
+    return metrics;
+}
+
+// ------------------------------
+// Crear objeto métrica
+// ------------------------------
+function makeMetric(name, value, ideal) {
+    const dev = Math.abs(value - ideal) / ideal;
+    return {
+        name,
+        value,
+        ideal,
+        deviation: dev,
+        score: scoreFromDeviation(dev)
     };
-
-    const scores = {};
-    let finalScore = 0;
-
-    for (let k in metrics) {
-        const deviation = Math.abs(metrics[k] - ideals[k]) / ideals[k];
-        const score = strictScore(deviation);
-
-        scores[k] = score;
-        finalScore += score * weights[k];
-    }
-
-    let html = `<h2>Puntaje Final: ${finalScore.toFixed(1)}%</h2><hr>`;
-
-    for (let k in metrics) {
-        html += `
-        <p><b>${k}</b><br>
-        Observado: ${metrics[k].toFixed(3)}<br>
-        Ideal: ${ideals[k]}<br>
-        Puntaje: ${scores[k].toFixed(1)}%</p>
-        <hr>`;
-    }
-
-    document.getElementById("results").innerHTML = html;
-    document.getElementById("downloadCsv").style.display = "block";
-
-    document.getElementById("downloadCsv").onclick = () => {
-        let csv = "Métrica,Observado,Ideal,Puntaje\n";
-        for (let k in metrics) {
-            csv += `${k},${metrics[k]},${ideals[k]},${scores[k]}\n`;
-        }
-
-        const blob = new Blob([csv], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "armonia_facial.csv";
-        a.click();
-    };
-});
+}
