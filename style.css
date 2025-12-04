@@ -1,61 +1,66 @@
-body {
-    font-family: Arial, sans-serif;
-    background: #f2f2f2;
-    padding: 20px;
-    text-align: center;
+:root{
+  --bg:#f4f6f8;
+  --card:#fff;
+  --accent:#2b8aef;
+  --muted:#666;
 }
 
-h1 {
-    color: #333;
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Inter, system-ui, Arial, sans-serif;
+  background:var(--bg);
+  color:#222;
+}
+header{
+  padding:18px 24px;
+  background:linear-gradient(90deg,#ffffff,#f7fbff);
+  border-bottom:1px solid #e6eefc;
+}
+header h1{margin:0;font-size:20px}
+main{
+  display:flex;
+  gap:18px;
+  padding:18px;
+}
+.left{flex:1}
+.right{width:360px}
+
+.uploader{
+  display:flex;gap:8px;align-items:center;margin-bottom:12px;
+}
+.btn{
+  background:var(--accent);
+  color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;
+  font-weight:600;
+}
+.btn.secondary{background:#6c757d}
+.btn.primary{background:#198754}
+.canvas-wrap{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.06)}
+canvas{
+  display:block;
+  max-width:100%;
+  border-radius:8px;
+  border:1px solid #ccc;
+  background:#222;
 }
 
-.card {
-    background: white;
-    padding: 20px;
-    margin: 20px auto;
-    width: 90%;
-    max-width: 400px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #ccc;
+/* Sidebar */
+.stepbox{
+  background:var(--card);
+  padding:14px;border-radius:10px;margin-bottom:12px;box-shadow:0 6px 18px rgba(0,0,0,0.04)
 }
+.stepbox h2{margin:0 0 6px 0;font-size:16px}
+.instructions{color:var(--muted);margin-bottom:8px}
+#neededList{padding-left:18px;margin-top:0;color:#222}
 
-label {
-    display: block;
-    text-align: left;
-    margin: 10px 0 5px;
-    color: #444;
-}
+.results{background:var(--card);padding:12px;border-radius:10px;box-shadow:0 6px 18px rgba(0,0,0,0.04)}
+.results h3{margin-top:0}
+.metric-row{display:flex;gap:8px;border-bottom:1px dashed #eee;padding:8px 0;align-items:center}
+.metric-row .name{flex:1;font-weight:600}
+.small{font-size:13px;color:var(--muted)}
+#finalScore{margin-top:12px;font-size:20px;font-weight:700}
+.status{color:#c33}
 
-input {
-    width: 100%;
-    padding: 8px;
-    margin-bottom: 12px;
-    border-radius: 5px;
-    border: 1px solid #bbb;
-}
-
-button {
-    width: 100%;
-    padding: 12px;
-    background: #4CAF50;
-    border: none;
-    color: white;
-    font-size: 16px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-button:hover {
-    background: #45a049;
-}
-
-.resultado {
-    background: white;
-    padding: 20px;
-    width: 90%;
-    max-width: 400px;
-    margin: 20px auto;
-    border-radius: 10px;
-    box-shadow: 0 0 10px #ccc;
-    font-size: 18px;
-}
+footer{padding:16px 24px;color:var(--muted);font-size:13px}
+.actions{margin-top:8px}
