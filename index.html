@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Armonía Facial</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Calculadora de Armonía Facial</h1>
+
+    <div class="card">
+        <h2>Ingresa tus medidas</h2>
+        <p>(Ej: distancia entre ojos, longitud de la cara, ancho de la cara, etc.)</p>
+
+        <label>Ancho de la cara (cm):</label>
+        <input type="number" id="ancho" placeholder="Ej: 14.5">
+
+        <label>Longitud de la cara (cm):</label>
+        <input type="number" id="largo" placeholder="Ej: 19.2">
+
+        <label>Distancia entre pupilas (cm):</label>
+        <input type="number" id="pupilas" placeholder="Ej: 6.5">
+
+        <label>Ancho de la nariz (cm):</label>
+        <input type="number" id="nariz" placeholder="Ej: 3.5">
+
+        <button onclick="calcular()">Calcular armonía</button>
+    </div>
+
+    <div class="resultado" id="resultado"></div>
+
+    <script src="script.js"></script>
+</body>
+</html>
