@@ -1,62 +1,27 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Analizador de Armonía Facial (Manual)</title>
-  <link rel="stylesheet" href="style.css" />
+    <meta charset="UTF-8">
+    <title>Calculadora de Armonía Facial</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header>
-    <h1>Analizador de Armonía Facial</h1>
-    <p>Sube una foto frontal, sigue las instrucciones y coloca los puntos en orden.</p>
-  </header>
 
-  <main>
-    <section class="left">
-      <div class="uploader">
-        <label class="btn">
-          Subir foto
-          <input id="foto" type="file" accept="image/*" />
-        </label>
-        <button id="resetAll" class="btn secondary">Reiniciar todo</button>
-      </div>
+<h1>Calculadora de Armonía Facial</h1>
 
-      <div class="canvas-wrap">
-        <canvas id="canvas"></canvas>
-      </div>
+<div id="upload-container">
+    <input type="file" id="image-input" accept="image/*">
+</div>
 
-      <div class="controls">
-        <button id="prevStep" class="btn secondary">◀️ Anterior</button>
-        <button id="nextStep" class="btn" disabled>Siguiente ▶️</button>
-        <button id="calcAll" class="btn primary" disabled>Calcular resultados finales</button>
-        <button id="undoPoint" class="btn secondary">Deshacer último punto</button>
-      </div>
-    </section>
+<canvas id="canvas"></canvas>
 
-    <aside class="right">
-      <div class="stepbox">
-        <h2 id="stepTitle">Paso</h2>
-        <div id="stepInstr" class="instructions"></div>
-        <ol id="neededList"></ol>
-        <p id="statusHelp" class="status">Coloca los puntos indicados haciendo clic en la foto.</p>
-      </div>
+<div id="instructions"></div>
 
-      <div class="results" id="results">
-        <h3>Resultados</h3>
-        <div id="metricsTable"></div>
-        <div id="finalScore"></div>
-        <div class="actions">
-          <button id="downloadCsv" class="btn secondary" disabled>Descargar CSV</button>
-        </div>
-      </div>
-    </aside>
-  </main>
+<button id="calcButton" style="display:none;">Calcular Resultados</button>
 
-  <footer>
-    <p>Hecho para ti — coloca los puntos en el orden indicado.</p>
-  </footer>
+<div id="results"></div>
 
-  <script src="script.js"></script>
+<script src="script.js"></script>
+
 </body>
 </html>
