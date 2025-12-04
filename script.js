@@ -1,141 +1,75 @@
-const img = document.getElementById("uploadedImage");
+const file = document.getElementById("file");
+const img = document.getElementById("photo");
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-const nextBtn = document.getElementById("nextBtn");
-const calcBtn = document.getElementById("calcBtn");
-const stepTitle = document.getElementById("stepTitle");
-const instructionText = document.getElementById("instructionText");
-const resultsBox = document.getElementById("resultsBox");
-const resultsDiv = document.getElementById("results");
 
-let step = 0;
+const nextBtn = document.getElementById("next");
+const calculateBtn = document.getElementById("calculate");
+const instruction = document.getElementById("instruction");
+const resultBox = document.getElementById("result");
+
+let points = [];
 let pointIndex = 0;
 
-const points = [];
-
-// 🔵 Lista exacta de pasos e instrucciones (22 puntos)
 const steps = [
-    { title: "Midface Ratio",
-      points: [
-        "Pupila izquierda",
-        "Pupila derecha",
-        "Parte superior del labio superior"
-      ]
-    },
-    { title: "FWHR",
-      points: [
-        "Pómulo izquierdo",
-        "Pómulo derecho",
-        "Entrecejo",
-        "Parte superior del labio superior"
-      ]
-    },
-    { title: "Face Height",
-      points: [
-        "Hairline",
-        "Mentón"
-      ]
-    },
-    { title: "E.S Ratio",
-      points: [
-        "Pupila izquierda",
-        "Pupila derecha",
-        "Pómulo izquierdo",
-        "Pómulo derecho"
-      ]
-    },
-    { title: "Jaw Width",
-      points: [
-        "Mandíbula izquierda",
-        "Mandíbula derecha"
-      ]
-    },
-    { title: "Nose Length / Height",
-      points: [
-        "Entrecejo",
-        "Base de la nariz",
-        "Fosa izquierda",
-        "Fosa derecha"
-      ]
-    },
-    { title: "Nose Width",
-      points: [
-        "Fosa izquierda",
-        "Fosa derecha",
-        "Pómulo izquierdo",
-        "Pómulo derecho"
-      ]
-    },
-    { title: "Nose-Lip Ratio",
-      points: [
-        "Comisura izquierda",
-        "Comisura derecha",
-        "Fosa izq",
-        "Fosa der"
-      ]
-    },
-    { title: "Nose = Chin",
-      points: [
-        "Fosa izquierda",
-        "Fosa derecha",
-        "Mentón lado izq",
-        "Mentón lado der"
-      ]
-    },
-    { title: "Chin to Philtrum",
-      points: [
-        "Mentón",
-        "Parte inferior del labio",
-        "Parte superior del labio",
-        "Base de la nariz"
-      ]
-    },
-    { title: "One-Eye Distance",
-      points: [
-        "Borde interno ojo izq",
-        "Borde externo ojo izq",
-        "Borde interno ojo der",
-        "Borde externo ojo der",
-        "Pupila izquierda",
-        "Pupila derecha"
-      ]
-    }
+    "Marca el centro del cabello (hairline)",
+    "Marca el entrecejo (glabella)",
+    "Marca la punta de la nariz",
+    "Marca la barbilla",
+    "Marca la comisura del ojo derecho",
+    "Marca la comisura del ojo izquierdo",
+    "Marca el borde exterior de la cara (derecha)",
+    "Marca el borde exterior de la cara (izquierda)"
 ];
 
-
-// Cargar imagen
-document.getElementById("imgUpload").addEventListener("change", e => {
-    const file = e.target.files[0];
-    img.src = URL.createObjectURL(file);
-
-    img.onload = () => {
-        canvas.width = img.clientWidth;
-        canvas.height = img.clientHeight;
-        nextBtn.classList.remove("hidden");
-        updateInstruction();
+file.addEventListener("change", e => {
+    const reader = new FileReader();
+    reader.onload = () => {
+        img.src = reader.result;
     };
+    reader.readAsDataURL(e.target.files[0]);
 });
 
+img.onload = () => {
+    const box = document.querySelector(".image-box");
+    canvas.width = box.clientWidth;
+    canvas.height = box.clientHeight;
 
-// Registrar clicks
+    points = [];
+    pointIndex = 0;
+
+    nextBtn.classList.remove("hidden");
+    calculateBtn.classList.add("hidden");
+
+    updateInstruction();
+};
+
 canvas.addEventListener("click", e => {
     const rect = canvas.getBoundingClientRect();
-
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
     points.push({x, y});
-
     drawPoint(x, y);
 
     pointIndex++;
 
-    const needed = steps[step].points.length;
-
-    if (pointIndex >= needed) {
-        nextBtn.classList.remove("hidden");
+    if (pointIndex < steps.length) {
+        updateInstruction();
+    } else {
+        nextBtn.classList.add("hidden");
+        calculateBtn.classList.remove("hidden");
+        instruction.textContent = "Todos los puntos listos ✔";
     }
 });
+
+nextBtn.addEventListener("click", () => {
+    instruction.textContent = steps[pointIndex];
+});
+
+function updateInstruction() {
+    instruction.textContent = steps[pointIndex];
+}
 
 function drawPoint(x, y) {
     ctx.fillStyle = "red";
@@ -144,46 +78,65 @@ function drawPoint(x, y) {
     ctx.fill();
 }
 
-function updateInstruction() {
-    stepTitle.textContent = steps[step].title;
-    instructionText.textContent = "Coloca los puntos: " + steps[step].points.join(", ");
-    nextBtn.classList.add("hidden");
-}
-
-nextBtn.addEventListener("click", () => {
-    pointIndex = 0;
-    step++;
-
-    if (step >= steps.length) {
-        calcBtn.classList.remove("hidden");
-        nextBtn.classList.add("hidden");
-        stepTitle.textContent = "Listo";
-        instructionText.textContent = "Ya puedes calcular el resultado final.";
-        return;
-    }
-
-    updateInstruction();
+calculateBtn.addEventListener("click", () => {
+    const score = calculateStrictScore();
+    resultBox.innerHTML = score;
 });
 
-
-// Distancia
 function dist(a, b) {
     return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
+function calculateStrictScore() {
 
-// CÁLCULO ESTRICTO
-function strictScore(val, ideal) {
-    const dev = Math.abs(val - ideal) / ideal;
-    const sev = Math.pow(dev, 1.7);
-    return Math.max(0, 100 * (1 - sev));
+    const hair = points[0];
+    const brow = points[1];
+    const nose = points[2];
+    const chin = points[3];
+
+    const rightEye = points[4];
+    const leftEye = points[5];
+
+    const rightFace = points[6];
+    const leftFace = points[7];
+
+    // Proporción vertical ideal → 1 : 1 : 1
+    const upper = dist(hair, brow);
+    const middle = dist(brow, nose);
+    const lower = dist(nose, chin);
+
+    const ideal = (Math.abs(upper - middle) + Math.abs(middle - lower)) / ((upper + middle + lower) / 3);
+
+    // Simetría horizontal
+    const eyeWidthDiff = Math.abs(dist(rightEye, leftEye) - dist(leftEye, rightEye));
+
+    // Ancho facial
+    const width = dist(rightFace, leftFace);
+    const height = dist(hair, chin);
+
+    const facialRatio = Math.abs((height / width) - 1.618); // razón áurea estricta
+
+    // Fórmula estricta:
+    // mientras mayor el error → más penalización
+    let rawScore = 100
+        - ideal * 20
+        - facialRatio * 35
+        - (eyeWidthDiff / 10)
+        - ((upper + middle + lower) / height) * 12;
+
+    rawScore = Math.max(0, Math.min(100, rawScore));
+
+    return `
+        <b>Puntaje estricto:</b> ${rawScore.toFixed(1)}%<br><br>
+        <b>Interpretación:</b><br>
+        ${strictInterpretation(rawScore)}
+    `;
 }
 
-
-calcBtn.addEventListener("click", () => {
-    resultsBox.classList.remove("hidden");
-
-    // Aquí se hace todo el cálculo usando los puntos guardados…
-
-    resultsDiv.innerHTML = "Cálculos listos (si quieres ahora te los lleno uno por uno).";
-});
+function strictInterpretation(score) {
+    if (score >= 90) return "Rostro altamente armónico (top 1%)";
+    if (score >= 80) return "Muy armónico";
+    if (score >= 70) return "Armónico moderado";
+    if (score >= 55) return "Armonía baja — rasgos desbalanceados";
+    return "Poca armonía — varios factores fuera del equilibrio";
+}
