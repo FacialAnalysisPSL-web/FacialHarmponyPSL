@@ -1,35 +1,61 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora de Armonía Facial</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analizador de Armonía Facial (Manual)</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <h1>Calculadora de Armonía Facial</h1>
+  <header>
+    <h1>Analizador de Armonía Facial</h1>
+    <p>Sube una foto y coloca los puntos que te pide la página. Paso a paso.</p>
+  </header>
 
-    <div class="card">
-        <h2>Ingresa tus medidas</h2>
-        <p>(Ej: distancia entre ojos, longitud de la cara, ancho de la cara, etc.)</p>
+  <main>
+    <section class="left">
+      <div class="uploader">
+        <label class="btn">
+          Subir foto
+          <input id="foto" type="file" accept="image/*" />
+        </label>
+        <button id="resetAll" class="btn secondary">Reiniciar todo</button>
+      </div>
 
-        <label>Ancho de la cara (cm):</label>
-        <input type="number" id="ancho" placeholder="Ej: 14.5">
+      <div class="canvas-wrap">
+        <canvas id="canvas"></canvas>
+      </div>
 
-        <label>Longitud de la cara (cm):</label>
-        <input type="number" id="largo" placeholder="Ej: 19.2">
+      <div class="controls">
+        <button id="prevStep" class="btn secondary">◀️ Anterior</button>
+        <button id="nextStep" class="btn" disabled> Siguiente ▶️</button>
+        <button id="calcAll" class="btn primary" disabled>Calcular resultados finales</button>
+      </div>
+    </section>
 
-        <label>Distancia entre pupilas (cm):</label>
-        <input type="number" id="pupilas" placeholder="Ej: 6.5">
+    <aside class="right">
+      <div class="stepbox">
+        <h2 id="stepTitle">Paso</h2>
+        <div id="stepInstr" class="instructions"></div>
+        <ol id="neededList"></ol>
+        <p id="statusHelp" class="status">Coloca los puntos indicados haciendo clic en la foto.</p>
+      </div>
 
-        <label>Ancho de la nariz (cm):</label>
-        <input type="number" id="nariz" placeholder="Ej: 3.5">
+      <div class="results" id="results">
+        <h3>Resultados</h3>
+        <div id="metricsTable"></div>
+        <div id="finalScore"></div>
+        <div class="actions">
+          <button id="downloadCsv" class="btn secondary" disabled>Descargar CSV</button>
+        </div>
+      </div>
+    </aside>
+  </main>
 
-        <button onclick="calcular()">Calcular armonía</button>
-    </div>
+  <footer>
+    <p>Hecho para ti — coloca los puntos en el orden indicado.</p>
+  </footer>
 
-    <div class="resultado" id="resultado"></div>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
