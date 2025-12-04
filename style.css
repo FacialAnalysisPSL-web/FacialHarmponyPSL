@@ -1,26 +1,126 @@
+/* ------------------ ESTILO GLOBAL ------------------ */
 body {
-    background: #111;
-    color: #fff;
-    font-family: Arial;
+    font-family: 'Segoe UI', Arial;
+    background: #f5f7fa;
+    margin: 0;
+    padding: 0;
+}
+
+/* ------------------ ENCABEZADO ------------------ */
+header {
+    background: #222;
+    color: white;
+    padding: 20px;
     text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* ------------------ LAYOUT PRINCIPAL ------------------ */
+#main {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    gap: 30px;
+}
+
+#leftPanel, #rightPanel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* ------------------ UPLOAD ------------------ */
+#uploadBox {
+    background: white;
+    padding: 15px;
+    width: 350px;
+    border-radius: 12px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    margin-bottom: 20px;
+}
+
+/* ------------------ IMAGEN ------------------ */
+#imageContainer {
+    position: relative;
+    max-width: 350px;
+}
+
+#uploadedImage {
+    max-width: 350px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 #canvas {
-    border: 2px solid #fff;
-    margin-top: 20px;
-    max-width: 90%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* ------------------ TARJETA DERECHA ------------------ */
+#stepCard {
+    width: 260px;
+    padding: 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    margin-bottom: 30px;
+}
+
+#stepCard h2 {
+    margin-top: 0;
+    color: #222;
+    font-size: 20px;
 }
 
 #instructions {
-    margin-top: 20px;
-    font-size: 20px;
-    font-weight: bold;
+    font-size: 16px;
+    color: #444;
+}
+
+/* ------------------ BOTONES ------------------ */
+#buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 button {
-    padding: 12px 22px;
-    font-size: 16px;
-    margin-top: 20px;
+    padding: 12px 20px;
+    font-size: 17px;
+    border: none;
+    border-radius: 10px;
     cursor: pointer;
-    border-radius: 8px;
+    color: white;
+    background: #4a80f5;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    transition: 0.2s;
+}
+
+button:hover {
+    background: #3a6de0;
+}
+
+button:disabled {
+    background: #888;
+    cursor: default;
+}
+
+.finalBtn {
+    background: #27b36a;
+}
+
+.finalBtn:hover {
+    background: #1f9a59;
+}
+
+/* ------------------ RESULTADOS ------------------ */
+#results {
+    text-align: center;
+    margin-top: 30px;
+    font-size: 20px;
 }
