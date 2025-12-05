@@ -173,12 +173,12 @@ function safeDiv(a,b){ return Math.abs(b) < 1e-9 ? 0 : a/b; }
 
 // -------------------- scoring table (interpolated EXACT) --------------------
 function scoreFromDeviation(d){ // d is fraction (e.g. 0.03)
-  if(d <= 0.02) return 94;
-  if(d <= 0.03) return lerp(94,86,(d - 0.02)/0.01);
-  if(d <= 0.05) return lerp(86,80,(d - 0.03)/0.02);
-  if(d <= 0.10) return lerp(80,70,(d - 0.05)/0.05);
-  if(d <= 0.15) return lerp(70,67,(d - 0.10)/0.05);
-  if(d <= 0.20) return lerp(67,60,(d - 0.15)/0.05);
+  if(d <= 0.02) return 100;
+  if(d <= 0.03) return lerp(100,95,(d - 0.02)/0.01);
+  if(d <= 0.05) return lerp(95,90,(d - 0.03)/0.02);
+  if(d <= 0.10) return lerp(90,78,(d - 0.05)/0.05);
+  if(d <= 0.15) return lerp(78,72,(d - 0.10)/0.05);
+  if(d <= 0.20) return lerp(72,60,(d - 0.15)/0.05);
   if(d <= 0.30) return lerp(60,50,(d - 0.20)/0.10);
   return 40;
 }
