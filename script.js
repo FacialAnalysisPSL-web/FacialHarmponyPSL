@@ -44,8 +44,20 @@ function loadImage(event) {
 
     reader.onload = function(e) {
         image.onload = function() {
-            canvas.width = image.width;
-            canvas.height = image.height;
+            // Ajusta el canvas al tamaño REAL visible de la imagen
+            canvas.width = image.clientWidth;
+            canvas.height = image.clientHeight;
+
+            canvas.style.width = image.clientWidth + "px";
+            canvas.style.height = image.clientHeight + "px";
+
+            canvas.style.display = "block";
+            image.style.display = "block";
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            points = [];
+            pointIndex = 0;
+            updateInstruction();
         }
         image.src = e.target.result;
     }
