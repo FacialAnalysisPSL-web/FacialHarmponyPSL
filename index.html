@@ -1,26 +1,45 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analizador Facial</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analizador de Armonía Facial</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <header>
+    <h1>Analizador de Armonía Facial</h1>
+    <p class="muted">Sube una foto, coloca 22 puntos en orden y pulsa CALCULAR.</p>
+  </header>
 
-<h2>Analizador de Armonía Facial — 22 Puntos</h2>
+  <main class="wrap">
+    <section class="left">
+      <input id="fileInput" type="file" accept="image/*">
 
-<input type="file" id="imageUpload" accept="image/*">
+      <div id="guideBig" class="guideBig">Sube una foto para comenzar</div>
 
-<p id="guideText" class="guide">Sube una foto para comenzar.</p>
+      <div class="canvasWrap">
+        <canvas id="canvas"></canvas>
+      </div>
 
-<canvas id="canvas"></canvas>
+      <div class="controls">
+        <div id="pointInfo" class="pointInfo">Punto 1 / 22</div>
+        <button id="resetBtn" class="btn">Reiniciar</button>
+        <button id="calculateBtn" class="btn hidden">CALCULAR</button>
+        <button id="downloadCsvBtn" class="btn hidden">Descargar CSV</button>
+      </div>
+    </section>
 
-<button id="calculateBtn" disabled>Calcular</button>
-<button id="downloadBtn" disabled>Descargar CSV</button>
+    <aside class="right">
+      <h3>Lista de puntos (orden exacto)</h3>
+      <ol id="pointsList" class="pointsList"></ol>
 
-<div id="results"></div>
+      <div id="results" class="results"></div>
+    </aside>
+  </main>
 
-<script src="script.js"></script>
+  <footer class="muted">Implementación minimalista · 22 puntos · 11 métricas</footer>
+
+  <script src="script.js"></script>
 </body>
 </html>
