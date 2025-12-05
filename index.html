@@ -3,18 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Análisis Facial</title>
+<title>Análisis Facial Profesional</title>
 <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-
 <div class="container">
-
     <h1>Análisis de Armonía Facial</h1>
 
     <div class="upload-box">
-        <label for="imageUpload" class="upload-label">Subir Foto</label>
+        <label for="imageUpload" class="upload-label">Sube tu foto</label>
         <input type="file" id="imageUpload" accept="image/*">
     </div>
 
@@ -30,11 +27,12 @@
         </div>
     </div>
 
-    <button id="calculateBtn" style="display:none;">CALCULAR</button>
-    <button id="downloadCsvBtn" style="display:none;">DESCARGAR CSV</button>
+    <div class="buttons">
+        <button id="calculateBtn" style="display:none;">CALCULAR</button>
+        <button id="downloadCsvBtn" style="display:none;">DESCARGAR CSV</button>
+    </div>
 
     <div id="results"></div>
-
 </div>
 
 <script src="script.js"></script>
