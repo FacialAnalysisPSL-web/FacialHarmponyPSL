@@ -2,32 +2,40 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<title>Analizador Facial — 22 puntos</title>
-<link rel="stylesheet" href="style.css">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Análisis Facial</title>
+<link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-<h1 class="title">Análisis de Armonía Facial</h1>
+<div class="container">
 
-<div class="upload-box">
-    <label for="imageUpload" class="upload-label">Subir imagen</label>
-    <input type="file" id="imageUpload" accept="image/*">
+    <h1>Análisis de Armonía Facial</h1>
+
+    <div class="upload-box">
+        <label for="imageUpload" class="upload-label">Subir Foto</label>
+        <input type="file" id="imageUpload" accept="image/*">
+    </div>
+
+    <div class="workspace">
+        <div class="image-area">
+            <img id="faceImage">
+            <canvas id="canvas"></canvas>
+        </div>
+
+        <div class="instruction-box">
+            <h3>Punto actual:</h3>
+            <p id="instruction">Sube una imagen para comenzar.</p>
+        </div>
+    </div>
+
+    <button id="calculateBtn" style="display:none;">CALCULAR</button>
+    <button id="downloadCsvBtn" style="display:none;">DESCARGAR CSV</button>
+
+    <div id="results"></div>
+
 </div>
-
-<p id="instructionText" class="instruction">Sube una imagen para comenzar</p>
-
-<div class="image-container">
-    <img id="uploadedImage">
-    <canvas id="pointsCanvas"></canvas>
-</div>
-
-<button id="calculateBtn" class="calc-btn" style="display:none;">
-    Calcular armonía
-</button>
-
-<h2 class="subtitle">Resultados</h2>
-<div id="results"></div>
 
 <script src="script.js"></script>
 </body>
