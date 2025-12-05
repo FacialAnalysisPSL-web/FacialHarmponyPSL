@@ -1,309 +1,290 @@
-// Analizador de Armonía Facial — script.js
-// 22 puntos, 11 métricas, tabla de puntaje interpolada EXACTA
+// =============================
+// VARIABLES GLOBALES
+// =============================
+let image = document.getElementById("uploadedImage");
+let canvas = document.getElementById("pointsCanvas");
+let ctx = canvas.getContext("2d");
+let points = [];
+let pointIndex = 0;
 
-// -------------------- Lista de puntos (orden exacto) --------------------
 const pointNames = [
-  // OJOS
-  "Pupila izquierda",           //0
-  "Pupila derecha",             //1
-  "Borde interno ojo izquierdo",//2
-  "Borde externo ojo izquierdo",//3
-  "Borde interno ojo derecho",  //4
-  "Borde externo ojo derecho",  //5
-
-  // NARIZ
-  "Fosa nasal izquierda",       //6
-  "Fosa nasal derecha",         //7
-  "Parte baja de la nariz (base nasal)", //8
-  "Entrecejo / glabella",       //9
-
-  // BOCA
-  "Comisura izquierda",         //10
-  "Comisura derecha",           //11
-
-  // CARA — ANCHOS
-  "Pómulo izquierdo",           //12
-  "Pómulo derecho",             //13
-  "Mandíbula izquierda",        //14
-  "Mandíbula derecha",          //15
-
-  // CARA — EJES VERTICALES
-  "Parte superior del labio superior", //16
-  "Parte inferior del labio inferior", //17
-  "Mentón (punto más bajo)",            //18
-  "Parte izquierda del mentón",         //19
-  "parte derecha del mentón",           //20
-  "Hairline / línea del cabello (centro frontal)" //21
+    "Pupila izquierda",
+    "Pupila derecha",
+    "Borde interno ojo izquierdo",
+    "Borde externo ojo izquierdo",
+    "Borde interno ojo derecho",
+    "Borde externo ojo derecho",
+    "Fosa nasal izquierda",
+    "Fosa nasal derecha",
+    "Base nasal",
+    "Entrecejo",
+    "Comisura izquierda",
+    "Comisura derecha",
+    "Pómulo izquierdo",
+    "Pómulo derecho",
+    "Mandíbula izquierda",
+    "Mandíbula derecha",
+    "Superior labio",
+    "Inferior labio",
+    "Mentón",
+    "Mentón izquierdo",
+    "Mentón derecho",
+    "Hairline"
 ];
 
-// -------------------- IDEALES (para las 11 métricas) --------------------
-const IDEALS = {
-  midface: 1.0,
-  fwhr: 1.99,
-  face_height: 1.37,
-  es_ratio: 0.46,
-  jaw_width: 0.94,
-  nose_ratio: 1.45,
-  nose_width: 0.25,
-  nose_lips: 1.55,
-  nose_chin: 1.0,
-  chin_philtrum: 2.40,
-  one_eye: 1.0
-};
+document.getElementById("imageUpload").addEventListener("change", loadImage);
 
-// -------------------- DOM --------------------
-const fileInput = document.getElementById("fileInput");
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
-const guideBig = document.getElementById("guideBig");
-const pointInfo = document.getElementById("pointInfo");
-const pointsListEl = document.getElementById("pointsList");
-const resetBtn = document.getElementById("resetBtn");
-const calculateBtn = document.getElementById("calculateBtn");
-const downloadCsvBtn = document.getElementById("downloadCsvBtn");
-const resultsEl = document.getElementById("results");
 
-let img = new Image();
-let imgURL = null;
-let points = []; // {x,y}
-let currentIndex = 0;
+// =============================
+// CARGAR IMAGEN
+// =============================
+function loadImage(event) {
+    const file = event.target.files[0];
+    const reader = new FileReader();
 
-// render list of points on right
-(function renderPointsList(){
-  pointNames.forEach((n,i)=>{
-    const li = document.createElement("li");
-    li.id = "pl-" + i;
-    li.textContent = (i+1) + ". " + n;
-    pointsListEl.appendChild(li);
-  });
-})();
+    reader.onload = function(e) {
+        image.onload = function() {
+            canvas.width = image.width;
+            canvas.height = image.height;
+        }
+        image.src = e.target.result;
+    }
+    reader.readAsDataURL(file);
+}
 
-// -------------------- Load image (reliable) --------------------
-fileInput.addEventListener("change", (e)=>{
-  const f = e.target.files[0];
-  if(!f) return;
-  if(imgURL) URL.revokeObjectURL(imgURL);
-  imgURL = URL.createObjectURL(f);
-  img = new Image();
-  img.onload = ()=>{
-    // set canvas to real image size
-    canvas.width = img.width;
-    canvas.height = img.height;
-    drawBase();
-    points = [];
-    currentIndex = 0;
-    updateGuide();
-    resultsEl.innerHTML = "";
-    calculateBtn.classList.add("hidden");
-    downloadCsvBtn.classList.add("hidden");
-  };
-  img.onerror = ()=>{
-    alert("Error cargando la imagen. Prueba otra foto.");
-  };
-  img.src = imgURL;
+
+// =============================
+// CAPTURAR CLICS (PUNTOS)
+// =============================
+canvas.addEventListener("click", function(e) {
+    if (pointIndex >= 22) return;
+
+    const rect = canvas.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+
+    points.push({ x, y });
+
+    drawPoint(x, y, pointIndex + 1);
+
+    pointIndex++;
+
+    updateInstruction();
+
+    if (pointIndex === 22) {
+        document.getElementById("calculateBtn").style.display = "block";
+    }
 });
 
-// -------------------- draw base image + markers --------------------
-function drawBase(){
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-  // draw existing points
-  points.forEach((p,i)=> drawMarker(p.x,p.y,i+1));
+
+// =============================
+// DIBUJAR PUNTO
+// =============================
+function drawPoint(x, y, number) {
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillText(number, x + 6, y - 6);
 }
 
-function drawMarker(x,y,i){
-  const r = Math.max(4, Math.round(Math.min(canvas.width, canvas.height)/220));
-  ctx.beginPath();
-  ctx.fillStyle = "#e11";
-  ctx.arc(x,y,r,0,Math.PI*2);
-  ctx.fill();
-  ctx.fillStyle = "#fff";
-  ctx.font = `bold ${Math.max(10, Math.round(Math.min(canvas.width, canvas.height)/55))}px sans-serif`;
-  ctx.fillText(String(i), x + r + 6, y + 6);
+function updateInstruction() {
+    if (pointIndex < 22) {
+        document.getElementById("instructionText").innerText =
+            `Coloca: ${pointNames[pointIndex]} (${pointIndex + 1}/22)`;
+    } else {
+        document.getElementById("instructionText").innerText =
+            "Listo. Presiona CALCULAR.";
+    }
 }
 
-// -------------------- click to place points (convert coords correctly) --------------------
-canvas.addEventListener("click", (ev)=>{
-  if(!img.src){ alert("Primero sube una foto."); return; }
-  if(currentIndex >= pointNames.length) return;
 
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / rect.width;
-  const scaleY = canvas.height / rect.height;
-  const x = (ev.clientX - rect.left) * scaleX;
-  const y = (ev.clientY - rect.top) * scaleY;
-
-  points.push({x,y});
-  // mark list entry
-  const li = document.getElementById("pl-" + currentIndex);
-  if(li) li.style.opacity = "0.45";
-
-  currentIndex++;
-  drawBase();
-  updateGuide();
-
-  if(currentIndex === pointNames.length){
-    calculateBtn.classList.remove("hidden");
-    guideBig.textContent = "Todos los puntos colocados — pulsa CALCULAR";
-  }
-});
-
-// -------------------- reset --------------------
-resetBtn.addEventListener("click", ()=>{
-  points = [];
-  currentIndex = 0;
-  drawBase();
-  Array.from(document.querySelectorAll("#pointsList li")).forEach(li=>li.style.opacity = "1");
-  calculateBtn.classList.add("hidden");
-  downloadCsvBtn.classList.add("hidden");
-  resultsEl.innerHTML = "";
-  updateGuide();
-});
-
-// -------------------- UI helpers --------------------
-function updateGuide(){
-  pointInfo.textContent = `Punto ${Math.min(currentIndex+1, pointNames.length)} / ${pointNames.length}`;
-  guideBig.textContent = currentIndex < pointNames.length ? `Marca: ${ (currentIndex+1) + ". " + pointNames[currentIndex] }` : "Todos los puntos listos";
+// =============================
+// FUNCIONES ÚTILES
+// =============================
+function dist(a, b) {
+    return Math.sqrt((a.x - b.x)**2 + (a.y - b.y)**2);
 }
 
-// -------------------- math helpers --------------------
-function dist(a,b){ return Math.hypot(a.x - b.x, a.y - b.y); }
-function lerp(a,b,t){ return a + (b-a)*t; }
-function safeDiv(a,b){ return Math.abs(b) < 1e-9 ? 0 : a/b; }
-
-// -------------------- scoring table (interpolated EXACT) --------------------
-function scoreFromDeviation(d){ // d is fraction (e.g. 0.03)
-  if(d <= 0.02) return 100;
-  if(d <= 0.03) return lerp(100,95,(d - 0.02)/0.01);
-  if(d <= 0.05) return lerp(95,90,(d - 0.03)/0.02);
-  if(d <= 0.10) return lerp(90,78,(d - 0.05)/0.05);
-  if(d <= 0.15) return lerp(78,72,(d - 0.10)/0.05);
-  if(d <= 0.20) return lerp(72,60,(d - 0.15)/0.05);
-  if(d <= 0.30) return lerp(60,50,(d - 0.20)/0.10);
-  return 40;
+function deviationPercent(observed, ideal) {
+    return Math.abs(observed - ideal) / ideal * 100;
 }
 
-// -------------------- CALCULATE METRICS (11 exact formulas) --------------------
-calculateBtn.addEventListener("click", ()=>{
-  if(points.length !== pointNames.length){
-    alert(`Necesitas colocar ${pointNames.length} puntos. Actualmente ${points.length}.`);
-    return;
-  }
-
-  const p = points; // alias
-
-  // 1) Midface ratio
-  const pupilDist = dist(p[0], p[1]) || 1;
-  const pupLineY = (p[0].y + p[1].y) / 2;
-  const midfaceHeight = Math.abs(p[16].y - pupLineY);
-  const midface = safeDiv(midfaceHeight, pupilDist);
-
-  // 2) FWHR
-  const bizygomatic = dist(p[12], p[13]) || 1;
-  const entrecejo_to_upperlip = Math.abs(p[9].y - p[16].y) || 1;
-  const fwhr = safeDiv(bizygomatic, entrecejo_to_upperlip);
-
-  // 3) Face height
-  const faceH = dist(p[21], p[18]) || 1;
-  const face_height = safeDiv(faceH, bizygomatic);
-
-  // 4) E.S ratio
-  const es_ratio = safeDiv(pupilDist, bizygomatic);
-
-  // 5) Jaw width
-  const jaw_width = safeDiv(dist(p[14], p[15]), bizygomatic);
-
-  // 6) Nose length to width
-  const nose_length = dist(p[9], p[8]) || 1;
-  const nose_width = dist(p[6], p[7]) || 1;
-  const nose_ratio = safeDiv(nose_length, nose_width);
-
-  // 7) Nose width relative
-  const nose_width_rel = safeDiv(nose_width, bizygomatic);
-
-  // 8) Nose–lips
-  const mouth_width = dist(p[10], p[11]) || 1;
-  const nose_lips = safeDiv(mouth_width, nose_width);
-
-  // 9) Nose = Chin
-  const chin_width = dist(p[19], p[20]) || 1;
-  const nose_chin = safeDiv(nose_width, chin_width);
-
-  // 10) Chin to philtrum
-  const chin_len = dist(p[18], p[17]) || 1;
-  const philtrum = dist(p[16], p[8]) || 1;
-  const chin_philtrum = safeDiv(chin_len, philtrum);
-
-  // 11) One-eye distance (compare 1:1:1)
-  const eye_L = dist(p[3], p[2]) || 1; // ext - int izq
-  const inter = pupilDist || 1;        // pupilas
-  const eye_R = dist(p[5], p[4]) || 1; // ext - int der
-  const meanSeg = (eye_L + inter + eye_R) / 3;
-  const dev_eye = ( Math.abs(eye_L - meanSeg)/meanSeg + Math.abs(inter - meanSeg)/meanSeg + Math.abs(eye_R - meanSeg)/meanSeg ) / 3;
-
-  // Build metrics array with deviations and scores
-  const metrics = [];
-
-  function pushMetric(name, value, ideal){
-    const dev = safeDiv(Math.abs(value - ideal), ideal);
-    const score = scoreFromDeviation(dev);
-    metrics.push({ name, value: Number(value.toFixed(6)), ideal, deviation: dev, score });
-  }
-
-  pushMetric("Midface ratio", midface, IDEALS.midface);
-  pushMetric("FWHR", fwhr, IDEALS.fwhr);
-  pushMetric("Face height", face_height, IDEALS.face_height);
-  pushMetric("E.S. ratio", es_ratio, IDEALS.es_ratio);
-  pushMetric("Jaw width", jaw_width, IDEALS.jaw_width);
-  pushMetric("Nose length/width", nose_ratio, IDEALS.nose_ratio);
-  pushMetric("Nose width (rel)", nose_width_rel, IDEALS.nose_width);
-  pushMetric("Nose–lips (mouth/nose)", nose_lips, IDEALS.nose_lips);
-  pushMetric("Nose / Chin width", nose_chin, IDEALS.nose_chin);
-  pushMetric("Chin / Philtrum", chin_philtrum, IDEALS.chin_philtrum);
-
-  // One-eye entry (special display)
-  const oneEyeScore = scoreFromDeviation(dev_eye);
-  metrics.push({ name: "One-eye (1:1:1)", value: `${eye_L.toFixed(2)} / ${inter.toFixed(2)} / ${eye_R.toFixed(2)}`, ideal: "1 : 1 : 1", deviation: dev_eye, score: oneEyeScore });
-
-  // Render results
-  renderResults(metrics);
-  // show CSV button
-  downloadCsvBtn.classList.remove("hidden");
-  downloadCsvBtn.onclick = () => downloadCsv(metrics);
-});
-
-// -------------------- render results --------------------
-function renderResults(metrics){
-  let html = "<h3>Resultados</h3>";
-  let total = 0;
-  metrics.forEach(m=>{
-    total += Number(m.score);
-    html += `<div class="metric">
-      <div><b>${m.name}</b></div>
-      <div>Valor observado: <b>${ (typeof m.value === 'number') ? m.value.toFixed(6) : m.value }</b></div>
-      <div>Valor ideal: <b>${m.ideal}</b></div>
-      <div>Desviación: <b>${(m.deviation*100).toFixed(3)}%</b></div>
-      <div>Puntaje: <b>${Number(m.score).toFixed(1)}</b></div>
-    </div>`;
-  });
-  const final = total / metrics.length;
-  html += `<h3>Puntaje final (promedio de ${metrics.length}): ${final.toFixed(1)} / 100</h3>`;
-  resultsEl.innerHTML = html;
+function metricScore(basePoints, deviation) {
+    let penalization = basePoints * (deviation / 100);
+    let finalScore = basePoints - penalization;
+    if (finalScore < 0) finalScore = 0;
+    return { penalization, finalScore };
 }
 
-// -------------------- CSV --------------------
-function downloadCsv(metrics){
-  let csv = "Métrica,Valor observado,Valor ideal,Desviación %,Puntaje\n";
-  metrics.forEach(m=>{
-    const val = (typeof m.value === 'number') ? m.value.toFixed(6) : `"${m.value}"`;
-    csv += `"${m.name}",${val},${m.ideal},${(m.deviation*100).toFixed(6)},${Number(m.score).toFixed(6)}\n`;
-  });
-  const total = metrics.reduce((s,m)=>s+Number(m.score),0);
-  csv += `"Final","",,"",${(total/metrics.length).toFixed(6)}\n`;
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `armonia_facial_${Date.now()}.csv`;
-  a.click();
+
+// =============================
+// CÁLCULOS DE LAS 11 MÉTRICAS
+// =============================
+document.getElementById("calculateBtn").addEventListener("click", calculateAllMetrics);
+
+function calculateAllMetrics() {
+    const r = {};
+
+    // Alias para puntos
+    const P = points;
+
+    // =============================
+    // 1. Midface ratio — 15 puntos
+    // =============================
+    const midfaceHeight = Math.abs(P[16].y - ((P[0].y + P[1].y) / 2));
+    const eyeDistance = dist(P[0], P[1]);
+    r.midface_obs = midfaceHeight / eyeDistance;
+    r.midface_ideal = 1.0;
+    r.midface_dev = deviationPercent(r.midface_obs, r.midface_ideal);
+    r.midface = metricScore(15, r.midface_dev);
+
+    // =============================
+    // 2. FWHR — 10 puntos
+    // =============================
+    const faceWidth = dist(P[12], P[13]);
+    const faceHeightMid = dist(P[9], P[16]);
+    r.fwhr_obs = faceWidth / faceHeightMid;
+    r.fwhr_ideal = 1.99;
+    r.fwhr_dev = deviationPercent(r.fwhr_obs, r.fwhr_ideal);
+    r.fwhr = metricScore(10, r.fwhr_dev);
+
+    // =============================
+    // 3. Face Height — 8 puntos
+    // =============================
+    const faceH = dist(P[21], P[18]);
+    r.fh_obs = faceH / faceWidth;
+    r.fh_ideal = 1.37;
+    r.fh_dev = deviationPercent(r.fh_obs, r.fh_ideal);
+    r.fh = metricScore(8, r.fh_dev);
+
+    // =============================
+    // 4. ES ratio — 7 puntos
+    // =============================
+    r.es_obs = eyeDistance / faceWidth;
+    r.es_ideal = 0.46;
+    r.es_dev = deviationPercent(r.es_obs, r.es_ideal);
+    r.es = metricScore(7, r.es_dev);
+
+    // =============================
+    // 5. Jaw width — 12 puntos
+    // =============================
+    const jawWidth = dist(P[14], P[15]);
+    r.jw_obs = jawWidth / faceWidth;
+    r.jw_ideal = 0.94;
+    r.jw_dev = deviationPercent(r.jw_obs, r.jw_ideal);
+    r.jw = metricScore(12, r.jw_dev);
+
+    // =============================
+    // 6. Nose length to height — 6 puntos
+    // =============================
+    const noseLen = dist(P[9], P[8]);
+    const noseWidth = dist(P[6], P[7]);
+    r.nlh_obs = noseLen / noseWidth;
+    r.nlh_ideal = 1.45;
+    r.nlh_dev = deviationPercent(r.nlh_obs, r.nlh_ideal);
+    r.nlh = metricScore(6, r.nlh_dev);
+
+    // =============================
+    // 7. Nose width — 6 puntos
+    // =============================
+    r.nw_obs = noseWidth / faceWidth;
+    r.nw_ideal = 0.25;
+    r.nw_dev = deviationPercent(r.nw_obs, r.nw_ideal);
+    r.nw = metricScore(6, r.nw_dev);
+
+    // =============================
+    // 8. Nose–lips — 5 puntos
+    // =============================
+    const mouthWidth = dist(P[10], P[11]);
+    r.nl_obs = mouthWidth / noseWidth;
+    r.nl_ideal = 1.55;
+    r.nl_dev = deviationPercent(r.nl_obs, r.nl_ideal);
+    r.nl = metricScore(5, r.nl_dev);
+
+    // =============================
+    // 9. Nose = Chin — 8 puntos
+    // =============================
+    const chinWidth = dist(P[19], P[20]);
+    r.nc_obs = noseWidth / chinWidth;
+    r.nc_ideal = 1.00;
+    r.nc_dev = deviationPercent(r.nc_obs, r.nc_ideal);
+    r.nc = metricScore(8, r.nc_dev);
+
+    // =============================
+    // 10. Chin–Philtrum — 10 puntos
+    // =============================
+    const chinLen = dist(P[18], P[17]);
+    const philtrum = dist(P[16], P[8]);
+    r.cp_obs = chinLen / philtrum;
+    r.cp_ideal = 2.40;
+    r.cp_dev = deviationPercent(r.cp_obs, r.cp_ideal);
+    r.cp = metricScore(10, r.cp_dev);
+
+    // =============================
+    // 11. One-eye distance — 13 puntos
+    // =============================
+    const eyeL = dist(P[3], P[2]);
+    const eyeR = dist(P[5], P[4]);
+    const ideal = (eyeL + inter + eyeR) / 3;
+    const inter = eyeDistance;
+
+    const obsDeviation =
+        deviationPercent(eyeL, ideal) +
+        deviationPercent(inter, ideal) +
+        deviationPercent(eyeR, ideal);
+
+    r.oe_dev = obsDeviation / 3;
+    r.oe = metricScore(13, r.oe_dev);
+
+    // =============================
+    // PROMEDIO FINAL
+    // =============================
+    const totalFinal = (
+        r.midface.finalScore + r.fwhr.finalScore + r.fh.finalScore +
+        r.es.finalScore + r.jw.finalScore + r.nlh.finalScore +
+        r.nw.finalScore + r.nl.finalScore + r.nc.finalScore +
+        r.cp.finalScore + r.oe.finalScore
+    ) / 11;
+
+    showResults(r, totalFinal);
+}
+
+
+// =============================
+// MOSTRAR RESULTADOS
+// =============================
+function showResults(r, total) {
+    const resultsDiv = document.getElementById("results");
+    resultsDiv.innerHTML = "";
+
+    function block(title, obs, ideal, dev, base, penalty, final) {
+        return `
+            <div class="metric-block">
+                <div class="metric-title">${title}</div>
+                <div class="metric-item">Valor observado: ${obs.toFixed(3)}</div>
+                <div class="metric-item">Valor ideal: ${ideal}</div>
+                <div class="metric-item">% desviación: ${dev.toFixed(2)}%</div>
+                <div class="metric-item">Puntos base: ${base}</div>
+                <div class="metric-item">Penalización: ${penalty.toFixed(2)}</div>
+                <div class="metric-item">Puntaje final: ${final.toFixed(2)}</div>
+            </div>
+        `;
+    }
+
+    resultsDiv.innerHTML += block("Midface Ratio", r.midface_obs, r.midface_ideal, r.midface_dev, 15, r.midface.penalization, r.midface.finalScore);
+    resultsDiv.innerHTML += block("FWHR", r.fwhr_obs, r.fwhr_ideal, r.fwhr_dev, 10, r.fwhr.penalization, r.fwhr.finalScore);
+    resultsDiv.innerHTML += block("Face Height", r.fh_obs, r.fh_ideal, r.fh_dev, 8, r.fh.penalization, r.fh.finalScore);
+    resultsDiv.innerHTML += block("E–S Ratio", r.es_obs, r.es_ideal, r.es_dev, 7, r.es.penalization, r.es.finalScore);
+    resultsDiv.innerHTML += block("Jaw Width", r.jw_obs, r.jw_ideal, r.jw_dev, 12, r.jw.penalization, r.jw.finalScore);
+    resultsDiv.innerHTML += block("Nose L/H", r.nlh_obs, r.nlh_ideal, r.nlh_dev, 6, r.nlh.penalization, r.nlh.finalScore);
+    resultsDiv.innerHTML += block("Nose Width", r.nw_obs, r.nw_ideal, r.nw_dev, 6, r.nw.penalization, r.nw.finalScore);
+    resultsDiv.innerHTML += block("Nose–Lips", r.nl_obs, r.nl_ideal, r.nl_dev, 5, r.nl.penalization, r.nl.finalScore);
+    resultsDiv.innerHTML += block("Nose = Chin", r.nc_obs, r.nc_ideal, r.nc_dev, 8, r.nc.penalization, r.nc.finalScore);
+    resultsDiv.innerHTML += block("Chin–Philtrum", r.cp_obs, r.cp_ideal, r.cp_dev, 10, r.cp.penalization, r.cp.finalScore);
+    resultsDiv.innerHTML += block("One-eye distance", r.oe_dev, 0, r.oe_dev, 13, r.oe.penalization, r.oe.finalScore);
+
+    resultsDiv.innerHTML += `
+        <h2>Puntaje Final Total: ${total.toFixed(2)}</h2>
+    `;
 }
